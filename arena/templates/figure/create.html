@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}New Figure{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    <label for="figure_name">Name:</label>
+    <input name="figure_name" id="figure_name" value="{{ request.form['figure_name'] }}" required>
+    <label for="strength">Strength:</label>
+    <input name="strength" id="strength" value="{{ request.form['strength'] }}" required>
+    <label for="strength">Dexterity:</label>
+    <input name="dexterity" id="dexterity" value="{{ request.form['dexterity'] }}" required>
+    <input type="submit" value="Save">
+  </form>
+{% endblock %}

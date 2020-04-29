@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Figures{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('figure.create') }}">New</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% for figure in figures %}
+    <article class="post">
+      <header>
+        <div>
+          <h1>{{ figure['figure_name'] }}</h1>
+          <div class="about">by {{ figure['user_id'] }}</div>
+        </div>
+        {% if g.user['id'] == figure['user_id'] %}
+          <a class="action" href="{{ url_for('figure.update', id=figure['id']) }}">Edit</a>
+          <a class="action" href="{{ url_for('game.join', id=figure['id']) }}">Join Game</a>
+        {% endif %}
+      </header>
+      <p class="body">
+        STRENGTH: {{ figure['strength'] }}, DX:{{ figure['dexterity'] }}
+      </p>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+{% endblock %}

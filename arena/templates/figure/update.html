@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Edit "{{ figure['figure_name'] }}"{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    <label for="figure_name">Name</label>
+    <input name="figure_name" id="figure_name"
+      value="{{ request.form['figure_name'] or figure['figure_name'] }}" required>
+    <label for="strength">Strenth</label>
+      <input name="strength" id="strength"
+        value="{{ request.form['strength'] or figure['strength'] }}" required>
+    <label for="dexterity">Dexterity</label>
+    <input name="dexterity" id="dexterity"
+        value="{{ request.form['dexterity'] or figure['dexterity'] }}" required>
+    <input type="submit" value="Save">
+  </form>
+  <hr>
+  <form action="{{ url_for('figure.delete', id=figure['id']) }}" method="post">
+    <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+  </form>
+{% endblock %}
