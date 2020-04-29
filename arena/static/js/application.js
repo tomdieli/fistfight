@@ -11,10 +11,13 @@ var outbox = new ReconnectingWebSocket(ws_scheme + location.host + "/submit");
 
 inbox.onmessage = function(message) {
   my_data_promise = message.data.text()
-  my_data_promise.then( value =>
+  my_data_promise.then( value => {
     console.log(JSON.parse(value))
-  )
-  //console.log(data) 
+    my_data = JSON.parse(value)
+    statusStr = `<br>${my_data.attacker} fake attacks ${my_data.attackee}`
+    var box = document.querySelector("#chat-text")
+    box.textContent += statusStr
+  })
 };
 
 inbox.onclose = function(){
@@ -36,7 +39,6 @@ document.querySelector("#input-form").addEventListener("submit", (event) => {
     "attacker": attacker,
     "attackee": selection
   }
-  //console.log(JSON.stringify({ handle: handle, text: text }))
   outbox.send(JSON.stringify(punch));
 });
 
