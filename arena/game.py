@@ -1,3 +1,5 @@
+import random
+
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, session
 )
@@ -6,7 +8,7 @@ from werkzeug.exceptions import abort
 from arena.auth import login_required
 from arena.db import get_db
 
-from arena.figure import get_figure
+from arena.figure import get_figure, get_figure_by_name
 
 bp = Blueprint('game', __name__)
 
@@ -18,9 +20,28 @@ def join(id):
     db = get_db()
 
     figures = db.execute(
-        'SELECT p.id, figure_name, strength, dexterity, user_id, username'
-        ' FROM figure p JOIN user u ON p.user_id = u.id'
-        ' ORDER BY created DESC'
+        'SELECT *'
+        ' FROM figure p'
+        ' WHERE p.id != ?'
+        ' ORDER BY p.dexterity',
+        (figure['id'],)
     ).fetchall()
 
     return render_template('game/lobby.html', figures=figures, figure=figure)
+
+
+def punch(attack_name, defend_name):
+    attacker = get_figure_by_name(attack_name)
+    defender = get_figure_by_name(defend_name)
+    rolls = [random.randrange(1, 7) for i in range(0,3)]
+    roll_total = sum(rolls)
+    if roll_total > attacker["dexterity"]:
+        damage = 0
+        message = "%s attacks %s but misses with a roll of %s %s" %\
+            (attacker["figure_name"], defender["figure_name"], roll_total, rolls)
+    else:
+        damage = random.randrange(1, 7)
+        message = "%s attacks %s and hits with a roll of %s %s. Doing %s damage." %\
+            (attacker["figure_name"], defender["figure_name"], roll_total, rolls, damage)
+
+    return { "message": message, "damage": damage }

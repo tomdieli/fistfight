@@ -49,7 +49,7 @@ def create():
 
 def get_figure(id, check_user=True):
     figure = get_db().execute(
-        'SELECT p.id, figure_name, strength, dexterity, created, user_id, username'
+        'SELECT p.id, figure_name, strength, dexterity, user_id'
         ' FROM figure p JOIN user u ON p.user_id = u.id'
         ' WHERE p.id = ?',
         (id,)
@@ -60,6 +60,19 @@ def get_figure(id, check_user=True):
 
     if check_user and figure['user_id'] != g.user['id']:
         abort(403)
+
+    return figure
+
+def get_figure_by_name(name):
+    figure = get_db().execute(
+        'SELECT *'
+        ' FROM figure p'
+        ' WHERE p.figure_name = ?',
+        (name,)
+    ).fetchone()
+
+    if figure is None:
+        abort(404, "Figure id {0} doesn't exist.".format(id))
 
     return figure
 

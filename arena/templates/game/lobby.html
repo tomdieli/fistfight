@@ -15,24 +15,26 @@
       <h3> The Other PLAYERS</h3>
       <div>
         {% for y in figures %}
-          <p>{{ y.figure_name }} ST: {{ y.strength }} DX: {{ y.dexterity }}</p>
+          <p id="{{ y.figure_name }}">{{ y.figure_name }} ST: {{ y.strength }} DX: {{ y.dexterity }}</p>
+          <p id="{{ y.figure_name }}_hits">Hits Remaining: {{ y.strength }}</p>        
         {% endfor %}
       </div>
       <h3> You ARE</h3>
       <form id="input-form" class="form-inline">
         <div>
-        <label id="player1">{{figure.figure_name}}</label>
-        ST: {{ figure.strength }} DX: {{ figure.dexterity }}
+          <p id="player1">{{figure.figure_name}}</p>
+          <p>ST: {{ figure.strength }} DX: {{ figure.dexterity }}</p>
+          <p id="player1_hits">Hits Remaining: {{ figure.strength }}</p>
         </div>
         <select name="opponent" id="opponent" width="300px" aria-placeholder="Select someone to punch">
           {% for x in figures %}
           <option value="{{ x.figure_name }}"{% if loop.first %} SELECTED{% endif %}>{{ x.figure_name }}</option>
           {% endfor %}
         </select>
-        <button class="btn btn-primary" type="submit">Send</button>
+        <button id="myButton" class="btn btn-primary" type="submit">Throw the Fist Punch</button>
       </form>
       <div class="page-header">
-        <h1>Chat</h1>
+        <h2>Game Status</h2>
       </div>
       <div id="chat-text">
       </div>

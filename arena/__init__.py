@@ -1,10 +1,13 @@
 import os
 import logging
+import json
 
 import gevent
 import redis
 from flask import Flask
 from flask_sockets import Sockets
+
+from arena.game import punch
 
 REDIS_URL = 'redis://127.0.0.1:6379'
 REDIS_CHAN = 'arena'
@@ -98,6 +101,11 @@ def create_app(test_config=None):
             message = ws.receive()
 
             if message:
+                data = json.loads(message)
+                punch_result = punch(data["attacker"], data["attackee"])
+                data['result_message'] = punch_result["message"]
+                data['damage'] = punch_result["damage"]
+                message = json.dumps(data)
                 app.logger.info(u'Inserting message: {}'.format(message))
                 redis.publish(REDIS_CHAN, message)
 
