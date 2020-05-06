@@ -1,0 +1,1 @@
+web: gunicorn -k flask_sockets.worker 'arena:create_app()'

@@ -1,48 +1,45 @@
 <!-- templates/index.html -->
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Fist Fight!</title>
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link href="/static/css/application.css" rel="stylesheet" media="screen">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  </head>
-  <body>
-    <div class="container">
-      <div class="jumbotron">
-        <h1>Welcome to the Fistfight!</h1>
-      </div>
-      <h3> The Other PLAYERS</h3>
-      <div>
-        {% for y in figures %}
-          <p id="{{ y.figure_name }}">{{ y.figure_name }} ST: {{ y.strength }} DX: {{ y.dexterity }}</p>
-          <p id="{{ y.figure_name }}_hits">Hits Remaining: {{ y.strength }}</p>        
-        {% endfor %}
-      </div>
-      <h3> You ARE</h3>
+<head>
+  <title>Fist Fight!</title>
+  <link href="/static/styles.css" rel="stylesheet" media="screen">
+</head>
+<body>
+  <h1>Welcome to the Fistfight!</h1>
+  <div class="flex-container">
+    <div>
+      <h2> You are:</h2>
       <form id="input-form" class="form-inline">
         <div>
-          <p id="player1">{{figure.figure_name}}</p>
-          <p>ST: {{ figure.strength }} DX: {{ figure.dexterity }}</p>
-          <p id="player1_hits">Hits Remaining: {{ figure.strength }}</p>
+          <b>
+            <p id="player1">{{figure.figure_name}}</p>
+            <p>ST: {{ figure.strength }} DX: {{ figure.dexterity }}</p>
+            <p id="player1_hits">Hits Remaining: {{ figure.strength }}</p>
+          </b>
         </div>
         <select name="opponent" id="opponent" width="300px" aria-placeholder="Select someone to punch">
           {% for x in figures %}
           <option value="{{ x.figure_name }}"{% if loop.first %} SELECTED{% endif %}>{{ x.figure_name }}</option>
           {% endfor %}
         </select>
-        <button id="myButton" class="btn btn-primary" type="submit">Throw the Fist Punch</button>
+        <button id="myButton" type="submit">Throw the Fist Punch</button>
       </form>
-      <div class="page-header">
-        <h2>Game Status</h2>
-      </div>
-      <div id="chat-text">
-      </div>
     </div>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.min.js"></script>
-    <script type="text/javascript" src="/static/js/application.js"></script>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    </body>
-</html>
+    <div>
+      <h2>Game Status</h2>
+      <textarea name="status" id="status" cols="40" rows="20"></textarea>
+    </div>
+    <div>
+      <h2> The Other Players:</h2>
+      {% for y in figures %}
+        <b>
+        <p id="{{ y.figure_name }}">{{ y.figure_name }} ST: {{ y.strength }} DX: {{ y.dexterity }}</p>
+        <p id="{{ y.figure_name }}_hits">Hits Remaining: {{ y.strength }}</p>
+        </b>      
+      {% endfor %}
+    </div>
+  </div>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.min.js"></script>
+  <script type="text/javascript" src="/static/js/application.js"></script>
+</body>
+

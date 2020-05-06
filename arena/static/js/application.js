@@ -44,7 +44,8 @@ inbox.onmessage = function(message) {
       }
       player_hits.textContent = new_val
     }
-    $("#chat-text").append("<div class='panel panel-default'><div class='panel-heading'>" + $('<span/>').text(my_data.attacker + " Attacks" + my_data.attackee).html() + "</div><div class='panel-body'>" + $('<span/>').text(my_data.result_message).html() + "</div></div>");
+    //$("#chat-text").append("<div class='panel panel-default'><div class='panel-heading'>" + $('<span/>').text(my_data.attacker + " Attacks" + my_data.attackee).html() + "</div><div class='panel-body'>" + $('<span/>').text(my_data.result_message).html() + "</div></div>");
+    document.querySelector("#status").textContent += my_data.result_message + "\n"
   })
 };
 
