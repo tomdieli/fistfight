@@ -10,7 +10,7 @@ from flask_sockets import Sockets
 from arena.game import punch
 
 REDIS_URL = os.environ['REDIS_URL']
-REDIS_CHAN = os.environ['REDIS_CHAN']
+REDIS_CHAN = 'arena'
 
 redis = redis.from_url(REDIS_URL)
 
