@@ -1,3 +1,4 @@
+import psycopg2.extras
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for
 )
@@ -12,11 +13,13 @@ bp = Blueprint('figure', __name__)
 @bp.route('/')
 def index():
     db = get_db()
-    figures = db.execute(
+    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute(
         'SELECT p.id, figure_name, strength, dexterity, user_id, username'
-        ' FROM figure p JOIN user u ON p.user_id = u.id'
+        ' FROM figure p JOIN game_user u ON p.user_id = u.id'
         ' ORDER BY created DESC'
-    ).fetchall()
+    )
+    figures = cursor.fetchall()
     return render_template('figure/index.html', figures=figures)
 
 
@@ -36,9 +39,11 @@ def create():
             flash(error)
         else:
             db = get_db()
-            db.execute(
+            cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            print(g.user)
+            cursor.execute(
                 'INSERT INTO figure (figure_name, strength, dexterity, user_id)'
-                ' VALUES (?, ?, ?, ?)',
+                ' VALUES ((%s), (%s), (%s), (%s))',
                 (figure_name, strength, dexterity, g.user['id'])
             )
             db.commit()
@@ -48,12 +53,15 @@ def create():
 
 
 def get_figure(id, check_user=True):
-    figure = get_db().execute(
+    db = get_db()
+    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute(
         'SELECT p.id, figure_name, strength, dexterity, user_id'
-        ' FROM figure p JOIN user u ON p.user_id = u.id'
-        ' WHERE p.id = ?',
+        ' FROM figure p JOIN game_user u ON p.user_id = u.id'
+        ' WHERE p.id = (%s)',
         (id,)
-    ).fetchone()
+    )
+    figure = cursor.fetchone()
 
     if figure is None:
         abort(404, "Figure id {0} doesn't exist.".format(id))
@@ -64,12 +72,15 @@ def get_figure(id, check_user=True):
     return figure
 
 def get_figure_by_name(name):
-    figure = get_db().execute(
+    db = get_db()
+    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute(
         'SELECT *'
         ' FROM figure p'
-        ' WHERE p.figure_name = ?',
+        ' WHERE p.figure_name = (%s)',
         (name,)
-    ).fetchone()
+    )
+    figure = cursor.fetchone()
 
     if figure is None:
         abort(404, "Figure id {0} doesn't exist.".format(id))
@@ -95,12 +106,12 @@ def update(id):
             flash(error)
         else:
             db = get_db()
-            db.execute(
-                'UPDATE figure SET figure_name = ?, strength = ?, dexterity = ?'
-                ' WHERE id = ?',
+            cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cursor.execute(
+                'UPDATE figure SET figure_name = (%s), strength = (%s), dexterity = (%s)'
+                ' WHERE id = (%s)',
                 (figure_name, strength, dexterity, id)
             )
-            db.commit()
             return redirect(url_for('figure.index'))
 
     return render_template('figure/update.html', figure=figure)
@@ -111,6 +122,6 @@ def update(id):
 def delete(id):
     get_figure(id)
     db = get_db()
-    db.execute('DELETE FROM figure WHERE id = ?', (id,))
-    db.commit()
+    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute('DELETE FROM figure WHERE id = (%s)', (id,))
     return redirect(url_for('figure.index'))

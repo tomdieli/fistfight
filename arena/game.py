@@ -1,5 +1,7 @@
 import random
 
+import psycopg2.extras
+
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, session
 )
@@ -18,14 +20,16 @@ def join(id):
     figure = get_figure(int(id))
 
     db = get_db()
+    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-    figures = db.execute(
+    cursor.execute(
         'SELECT *'
         ' FROM figure p'
-        ' WHERE p.id != ?'
+        ' WHERE p.id != (%s)'
         ' ORDER BY p.dexterity',
         (figure['id'],)
-    ).fetchall()
+    )
+    figures = cursor.fetchall()
 
     return render_template('game/lobby.html', figures=figures, figure=figure)
 
