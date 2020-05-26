@@ -20,7 +20,13 @@ def index():
         ' ORDER BY created DESC'
     )
     figures = cursor.fetchall()
-    return render_template('figure/index.html', figures=figures)
+    cursor.execute(
+        'SELECT *'
+        ' FROM game'
+        ' ORDER BY created DESC'
+    )
+    games = cursor.fetchall()
+    return render_template('figure/index.html', figures=figures, games=games)
 
 
 @bp.route('/create', methods=('GET', 'POST'))
@@ -86,6 +92,23 @@ def get_figure_by_name(name):
         abort(404, "Figure id {0} doesn't exist.".format(id))
 
     return figure
+
+
+def get_figures_by_user(user_id):
+    db = get_db()
+    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute(
+        'SELECT p.id, figure_name, strength, dexterity, user_id'
+        ' FROM figure p JOIN game_user u ON p.user_id = u.id'
+        ' WHERE u.id = (%s)',
+        (user_id,)
+    )
+    figures = cursor.fetchall()
+
+    if figures is None:
+        return []
+
+    return figures
 
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))

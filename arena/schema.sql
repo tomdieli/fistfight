@@ -1,7 +1,6 @@
 DROP TABLE IF EXISTS figure;
 DROP TABLE IF EXISTS game_user;
 
-
 CREATE TABLE game_user (
   id SERIAL PRIMARY KEY,
   username TEXT UNIQUE NOT NULL,

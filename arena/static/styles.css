@@ -1,3 +1,8 @@
+nav {
+    display: flex;
+    flex-wrap: wrap;
+}
+
 body {
     text-align: center;
     font-stretch: ultra-expanded;
@@ -28,9 +33,4 @@ a {
 .flex-container {
     display: flex;
     justify-content: space-evenly;
-}
-
-#chat-text {
-    overflow: auto;
-    height: 500px;
 }

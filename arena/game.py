@@ -18,21 +18,67 @@ bp = Blueprint('game', __name__)
 @login_required
 def join(id):
     figure = get_figure(int(id))
+    figures = []
+    return render_template('game/lobby.html', figures=figures, figure=figure)
+
+
+@bp.route('/play/<int:game_id>', methods=('POST','GET'))
+@login_required
+def game(game_id):
+    figname = request.args.get('figure')
+    figure = get_figure_by_name(figname)
 
     db = get_db()
     cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     cursor.execute(
-        'SELECT *'
-        ' FROM figure p'
-        ' WHERE p.id != (%s)'
-        ' ORDER BY p.dexterity',
-        (figure['id'],)
+        'SELECT figure_name, strength, dexterity'
+        ' FROM figure f'
+        ' JOIN game g'
+        ' ON f.figure_name = ANY (g.players)'
+        ' WHERE g.id = %s'
+        ' ORDER BY f.dexterity DESC;', (game_id,)
     )
     figures = cursor.fetchall()
 
-    return render_template('game/lobby.html', figures=figures, figure=figure)
+    return render_template('game/game.html', figures=figures, figure=figure)
 
+
+@bp.route('/new_game', methods=('POST',))
+@login_required
+def create():
+    creator = request.form['creator']
+    print(creator)
+    db = get_db()
+    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute(
+        'INSERT INTO game (owner)'
+        ' VALUES (%s)',
+        (creator,)
+    )
+    db.commit()
+    return redirect(url_for('figure.index'))
+
+
+def add_player(f_name, game_id):
+    db = get_db()
+    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute(
+        'UPDATE game'
+        ' SET players = players || %s::text'
+        ' WHERE game.id = %s'
+        ' AND %s <> ALL (players);', (f_name, game_id, f_name)
+    )
+    db.commit()
+    figures = []
+    cursor.execute(
+        'SELECT players from game'
+        ' WHERE game.id = %s', (game_id,)
+    )
+    db.commit()
+    figure_list = cursor.fetchall()
+
+    return figure_list[0][0]
 
 def punch(attack_name, defend_name):
     attacker = get_figure_by_name(attack_name)

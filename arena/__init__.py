@@ -7,13 +7,15 @@ import redis
 from flask import Flask
 from flask_sockets import Sockets
 
-from arena.game import punch
+from arena.game import punch, add_player
 
 REDIS_URL = os.environ['REDIS_URL']
 DATABASE_URL = os.environ['DATABASE_URL']
 REDIS_CHAN = 'arena'
 
 redis = redis.from_url(REDIS_URL)
+
+logging.basicConfig(level=logging.INFO)
 
 def create_app(test_config=None):
     class Backend(object):
@@ -67,27 +69,22 @@ def create_app(test_config=None):
         # load the test config if passed in
         app.config.from_mapping(test_config)
 
-    # ensure the instance folder exists
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
-
     sockets = Sockets(app)
 
     chats = Backend()
     chats.start()
-
-    # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'Hello, Waylame!'
 
     from . import db
     db.init_app(app)
 
     from . import auth
     app.register_blueprint(auth.bp)
+
+    from . import lobby
+    app.register_blueprint(lobby.bp)
+
+    from . import game
+    app.register_blueprint(game.bp)
 
     from . import figure
     app.register_blueprint(figure.bp)
@@ -103,9 +100,21 @@ def create_app(test_config=None):
 
             if message:
                 data = json.loads(message)
-                punch_result = punch(data["attacker"], data["attackee"])
-                data['result_message'] = punch_result["message"]
-                data['damage'] = punch_result["damage"]
+                # app.logger.info(data)
+                if data['action'] == "punch":
+                    punch_result = punch(data["attacker"], data["attackee"])
+                    data['result_message'] = punch_result["message"]
+                    data['damage'] = punch_result["damage"]
+                elif data["action"] == "join-game":
+                    app.logger.info("%s has joined the game." % data['figure_name'])
+                    figure = data['figure_name']
+                    game_id = data['game_id']
+                    try:
+                        players = add_player(figure, game_id)
+                        app.logger.info(players)
+                        data["players"] = players
+                    except Exception as e:
+                        raise(e)
                 message = json.dumps(data)
                 app.logger.info(u'Inserting message: {}'.format(message))
                 redis.publish(REDIS_CHAN, message)
@@ -118,9 +127,5 @@ def create_app(test_config=None):
         while not ws.closed:
             # Context switch while `ChatBackend.start` is running in the background.
             gevent.sleep(0.1)
-
-    from . import game
-    app.register_blueprint(game.bp)
-
 
     return app
