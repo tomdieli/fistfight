@@ -14,9 +14,7 @@ var players = JSON.parse(figures)
 var player = JSON.parse(figure)
 var nextPlayer = null
 
-window.onload = (event) => {
-  //console.log('page is fully loaded');
-
+const getNextPlayer = () => {
   nextPlayer = players.shift()
   players.push(nextPlayer)
 
@@ -28,6 +26,11 @@ window.onload = (event) => {
     myBut.disabled = true
     myBut.textContent = `${nextPlayer[0]}'s turn`
   }
+}
+
+window.onload = (event) => {
+  console.log('page is fully loaded');
+  getNextPlayer()
 };
 
 inbox.onmessage = function(message) {
@@ -35,33 +38,34 @@ inbox.onmessage = function(message) {
   my_data_promise.then( value => {
     //console.log(JSON.parse(value))
     my_data = JSON.parse(value)
-    //console.log(player)
-    //console.log(players)
-    nextPlayer = players.shift()
-    players.push(nextPlayer)
-    statusStr = `${my_data.result_message}`
-    myBut = document.querySelector("#myButton")
-    if (document.querySelector("#player1").textContent === nextPlayer[0]) {
-      myBut.disabled = false
-      myBut.textContent = "Punch"
-    } else {
-      myBut.disabled = true
-      myBut.textContent = `${nextPlayer[0]}'s turn`
-    }
     if (parseInt(my_data.damage) !== 0) {
       player_hits = document.querySelector("#" + my_data.attackee + "_hits")
       if (player_hits === null) {
         player_hits = document.querySelector("#player1_hits")
       }
       player_stat = player_hits.textContent
+      console.log(player_stat)
       digit = parseInt(player_stat.match(/: \d+/g)[0].split(' ')[1]);
+      console.log(digit)
       digit -= my_data.damage
       if ( digit <= 0){
         new_val = "DEAD"
-        if (document.querySelector("#player1").textContent === my_data.attackee) {
-          myBut.disabled = true
-          players.pop()
+        console.log(my_data.attackee)
+        console.log(players.indexOf(my_data.attackee))
+        console.log(players)
+        console.log("BEFORE:" + players)
+        for(i=0; i < players.length; ++i){
+          if(players[i][0] === my_data.attackee){
+            players.splice(i, 1)
+          }
         }
+        var selectobject = document.getElementById("opponent");
+        for (var i=0; i<selectobject.length; i++) {
+          if (selectobject.options[i].value === my_data.attackee) {
+            selectobject.remove(i);
+          }
+        }
+        console.log("AFTER:" + players)  
       } else {
         new_val = `Hits Remaining: ${digit}`
       }
@@ -69,6 +73,7 @@ inbox.onmessage = function(message) {
     }
     document.querySelector("#status").textContent += my_data.result_message + "\n"
     document.getElementById("status").scrollTop = document.getElementById("status").scrollHeight
+    getNextPlayer()
   })
 };
 
