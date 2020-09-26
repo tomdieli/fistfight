@@ -1,0 +1,8 @@
+-user auth tests
+-figure create/delete tests
+-lobby join tests
+-game create/delete tests
+-game join tests
+-game start tests
+-game play tests
+-game end tests
