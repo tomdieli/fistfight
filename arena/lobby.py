@@ -14,23 +14,30 @@ from arena.figure import get_figures_by_user, get_figure
 
 bp = Blueprint('lobby', __name__)
 
-@bp.route('/join/<int:game_id>/user/<int:user_id>')
+@bp.route('/', methods=('GET', 'POST'))
 @login_required
-def join(game_id, user_id):
-    figures = get_figures_by_user(user_id)
-    # user = get_figure(user_id)
+def index():
+    refresh_games = False
     db = get_db()
     cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cursor.execute(
-        'SELECT username FROM game_user WHERE id = (%s)', (user_id,)
+        'SELECT *'
+        ' FROM game_user'
     )
-    user_name = cursor.fetchone()
-
+    users = cursor.fetchall()
+    print(users)
     cursor.execute(
-        'SELECT id, owner FROM game WHERE id = (%s)', (game_id,)
+        'SELECT p.id, figure_name, strength, dexterity, user_id, username'
+        ' FROM figure p JOIN game_user u ON p.user_id = u.id'
+        ' ORDER BY created DESC'
     )
-    current_game = cursor.fetchone()
-
-    return render_template('game/lobby.html', figures=figures, game=current_game, user=user_name[0])
-
-
+    figures = cursor.fetchall()
+    cursor.execute(
+        'SELECT *'
+        ' FROM game'
+        ' ORDER BY created DESC'
+    )
+    games = cursor.fetchall()
+    if request.method == 'POST':
+        refresh_games = True
+    return render_template('game/index.html', users=users, figures=figures, games=games, refresh_games=False)

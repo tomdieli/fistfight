@@ -1,8 +1,10 @@
-<!doctype html>
-<title>{% block title %}{% endblock %} - Fistfight!</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+<!DOCTYPE html>
+<head>
+  <title>{% block title %}{% endblock %} - Fistfight!</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
 <nav>
-  <h1>Fistfight!</h1>
+  <h1>Fistfight! - {% block header %}{% endblock %}</h1>
   <ul>
     {% if g.user %}
       <div>
@@ -19,9 +21,18 @@
     {% endif %}
   </ul>
 </nav>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 <section class="content">
-  <header>
-    {% block header %}{% endblock header%}
-  </header>
-  {% block content %}{% endblock content%}
+  <div class="flex-container">
+    {% block content %}
+    {% endblock content%}
+  </div>
 </section>

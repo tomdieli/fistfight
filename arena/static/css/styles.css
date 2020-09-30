@@ -7,7 +7,7 @@ body {
     text-align: center;
     font-stretch: ultra-expanded;
     background-color: slategray;
-    background-image: url("index.jpeg");
+    background-image: url("../index.jpeg");
     background-blend-mode: screen;
 }
 

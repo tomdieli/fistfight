@@ -80,15 +80,16 @@ def create_app(test_config=None):
     from . import auth
     app.register_blueprint(auth.bp)
 
+    from . import figure
+    app.register_blueprint(figure.bp)
+
     from . import lobby
     app.register_blueprint(lobby.bp)
 
     from . import game
     app.register_blueprint(game.bp)
-
-    from . import figure
-    app.register_blueprint(figure.bp)
     app.add_url_rule('/', endpoint='index')
+    
 
     @sockets.route('/submit')
     def inbox(ws):

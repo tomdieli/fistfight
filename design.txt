@@ -1,4 +1,18 @@
--user auth tests
+-----------------------
+-format lobby and game base.
+-format lobby.
+-extract db calls to services using blog thing.
+-set up envs
+    -dev( use dev server )
+    -staging( use pg/gunicorn/etc)
+    -production
+    -prod
+-testing blueprints specifically
+
+---------------------------------
+
+*user auth tests
+-lobby tests
 -figure create/delete tests
 -lobby join tests
 -game create/delete tests

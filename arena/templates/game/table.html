@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Table{% endblock %}
+{% block header %}Table{% endblock %}
+{% block content %}
+<body>
+  <div>
+    <h3> Choose Your Figure:</h3>
+    <form id="join-form" class="form-inline">
+      <select name="figure" id="figure" width="300px" aria-placeholder="Select someone to fight">
+        {% for x in figures %}
+        <option value="{{ x.figure_name }}"{% if loop.first %} SELECTED{% endif %}>{{ x.figure_name }}</option>
+        {% endfor %}
+      </select>
+      <button id="myButton" type="submit">Ready</button>
+    </form>
+    <input type="button" id="start-game" value="Start" disabled>start game</button>
+  </div>
+  <div>
+    <h2>Table</h2>
+    <textarea name="status" id="status" cols="40" rows="20"></textarea>
+  </div>
+  <div id="otherPlayers">
+    <h2> The Other Players:</h2>
+    <p>Waiting for Players</p>
+  </div>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.min.js" defer></script>
+  <script type="text/javascript">
+    var username = '{{ user }}';
+    var game_owner = '{{ game.owner }}';
+    var game_id = '{{ game.id }}';
+  </script>
+  <script type="text/javascript" src="/static/js/table.js" defer></script>
+</body>
+{% endblock content%}
+

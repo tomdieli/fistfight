@@ -3,29 +3,67 @@ import random
 import psycopg2.extras
 
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, session
+    Blueprint, flash, g, redirect, render_template,
+    request, url_for, session
 )
 from werkzeug.exceptions import abort
 
+from arena.figure import get_figure, get_figure_by_name, get_figures_by_user
 from arena.auth import login_required
 from arena.db import get_db
 
-from arena.figure import get_figure, get_figure_by_name
 
-bp = Blueprint('game', __name__)
+bp = Blueprint('game', __name__, url_prefix='/game')
 
-@bp.route('/join/<int:id>')
+
+@bp.route('/new_game', methods=('POST',))
 @login_required
-def join(id):
-    figure = get_figure(int(id))
-    figures = []
-    return render_template('game/lobby.html', figures=figures, figure=figure)
+def create():
+    creator = request.form['creator']
+    db = get_db()
+    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute(
+        'INSERT INTO game (owner)'
+        ' VALUES (%s)',
+        (creator,)
+    )
+    db.commit()
+    return redirect(url_for('lobby.index'))
+
+
+@bp.route('/<int:game_id>/delete', methods=('POST',))
+@login_required
+def delete(game_id):
+    db = get_db()
+    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute('DELETE FROM game WHERE id = (%s)', (game_id,))
+    return redirect(url_for('lobby.index'))
+
+
+@bp.route('/join/<int:game_id>/user/<int:user_id>', methods=('POST',))
+@login_required
+def join(game_id, user_id):
+    figures = get_figures_by_user(user_id)
+    db = get_db()
+    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute(
+        'SELECT username FROM game_user WHERE id = (%s)', (user_id,)
+    )
+    user_name = cursor.fetchone()
+
+    cursor.execute(
+        'SELECT id, owner FROM game WHERE id = (%s)', (game_id,)
+    )
+    current_game = cursor.fetchone()
+
+    return render_template('game/table.html', figures=figures, game=current_game, user=user_name[0])
 
 
 @bp.route('/play/<int:game_id>', methods=('POST','GET'))
 @login_required
-def game(game_id):
-    figname = request.args.get('figure')
+def play(game_id):
+    print(request.data)
+    figname = request.form.get('figure')
     figure = get_figure_by_name(figname)
 
     db = get_db()
@@ -42,22 +80,6 @@ def game(game_id):
     figures = cursor.fetchall()
 
     return render_template('game/game.html', figures=figures, figure=figure)
-
-
-@bp.route('/new_game', methods=('POST',))
-@login_required
-def create():
-    creator = request.form['creator']
-    print(creator)
-    db = get_db()
-    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cursor.execute(
-        'INSERT INTO game (owner)'
-        ' VALUES (%s)',
-        (creator,)
-    )
-    db.commit()
-    return redirect(url_for('figure.index'))
 
 
 def add_player(f_name, game_id):

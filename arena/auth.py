@@ -26,11 +26,11 @@ def register():
         )
 
         if not username:
-            error = 'Username is required.'
+            error = 'Username is required'
         elif not password:
-            error = 'Password is required.'
+            error = 'Password is required'
         elif cursor.fetchone() is not None:
-            error = 'User {} is already registered.'.format(username)
+            error = 'User {} is already registered'.format(username)
 
         if error is None:
             cursor.execute(
@@ -39,7 +39,7 @@ def register():
             )
             # db.commit()
             return redirect(url_for('auth.login'))
-
+        # TODO: Fix Flashing in this module!
         flash(error)
 
     return render_template('auth/register.html')
@@ -59,9 +59,9 @@ def login():
         user = cursor.fetchone()
 
         if user is None:
-            error = 'Incorrect username.'
+            error = 'Invalid username'
         elif not check_password_hash(user['password'], password):
-            error = 'Incorrect password.'
+            error = 'Invalid password'
 
         if error is None:
             session.clear()

@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS figure;
 DROP TABLE IF EXISTS game_user;
+DROP TABLE IF EXISTS game;
 
 CREATE TABLE game_user (
   id SERIAL PRIMARY KEY,
@@ -16,3 +17,11 @@ CREATE TABLE figure (
   dexterity INTEGER NOT NULL,
   FOREIGN KEY (user_id) REFERENCES game_user (id)
 );
+
+CREATE TABLE game (
+  id SERIAL PRIMARY KEY,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  turn INTEGER NOT NULL DEFAULT 0,
+  owner TEXT NOT NULL,
+  players TEXT[] DEFAULT '{}'::text[]
+)

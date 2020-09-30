@@ -23,17 +23,18 @@ def close_db(e=None):
 def init_db():
     db = get_db()
     cursor = db.cursor()
-
     with current_app.open_resource('schema.sql') as f:
         cursor.execute(f.read().decode('utf8'))
 
 
-def init_game():
+def select_rows(query):
     db = get_db()
     cursor = db.cursor()
+    cursor.execute(query)
+    records = [row for row in cursor.fetchall()]
+    cursor.close()
+    return records
 
-    with current_app.open_resource('game.sql') as f:
-        cursor.execute(f.read().decode('utf8'))
 
 
 @click.command('init-db')
@@ -44,15 +45,15 @@ def init_db_command():
     click.echo('Initialized the database.')
 
 
-@click.command('init-game-db')
-@with_appcontext
-def init_game_db_command():
-    """Clear the existing data and create new tables."""
-    init_game()
-    click.echo('Initialized the game table.')
+# @click.command('init-game-db')
+# @with_appcontext
+# def init_game_db_command():
+#     """Clear the existing data and create new tables."""
+#     init_game()
+#     click.echo('Initialized the game table.')
 
 
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
-    app.cli.add_command(init_game_db_command)
+    # app.cli.add_command(init_game_db_command)

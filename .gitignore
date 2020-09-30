@@ -14,3 +14,4 @@ build/
 *.egg-info/
 
 issues.txt
+node_modules

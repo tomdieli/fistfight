@@ -20,7 +20,8 @@
   </ul>
 </nav>
 <section class="content">
-  <div class="flex-container">
-    {% block content %}{% endblock content%}
-  </div>
+  <header>
+    {% block header %}{% endblock header%}
+  </header>
+  {% block content %}{% endblock content%}
 </section>
