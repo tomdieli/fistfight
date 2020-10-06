@@ -44,7 +44,7 @@ def create_app(test_config=None):
             try:
                 client.send(data)
             except Exception:
-                # self.clients.remove(client)
+                self.clients.remove(client)
                 raise
 
         def run(self):
@@ -82,15 +82,15 @@ def create_app(test_config=None):
     from . import auth
     app.register_blueprint(auth.bp)
 
+    from . import lobby
+    app.register_blueprint(lobby.bp)
+    app.add_url_rule('/', endpoint='index')
+
     from . import figure
     app.register_blueprint(figure.bp)
 
-    from . import lobby
-    app.register_blueprint(lobby.bp)
-
     from . import game
     app.register_blueprint(game.bp)
-    app.add_url_rule('/', endpoint='index')
     
 
     @sockets.route('/submit')
