@@ -1,22 +1,15 @@
 -----------------------
--format lobby and game base.
--format lobby.
--extract db calls to services using blog thing.
+DONE -format lobby and game base
+DONE -format lobby.
+-extract db calls to services
+    DONE - initial extraction
+    -extract service classes by responsibility
+    -do the auth service
 -set up envs
-    -dev( use dev server )
+    -dev( use dev server)
     -staging( use pg/gunicorn/etc)
     -production
     -prod
--testing blueprints specifically
+-testing blueprints specifically???
 
 ---------------------------------
-
-*user auth tests
--lobby tests
--figure create/delete tests
--lobby join tests
--game create/delete tests
--game join tests
--game start tests
--game play tests
--game end tests

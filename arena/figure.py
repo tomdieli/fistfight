@@ -5,7 +5,9 @@ from flask import (
 from werkzeug.exceptions import abort
 
 from arena.auth import login_required
-from arena.db import get_db
+#from arena.db import get_db
+#from arena.database import Database
+from arena.database import DatabaseServices
 
 bp = Blueprint('figure', __name__, url_prefix='/figure')
 
@@ -16,23 +18,17 @@ def create():
         figure_name = request.form['figure_name']
         strength = request.form['strength']
         dexterity = request.form['dexterity']
-        error = None
 
+        # TODO: Determine the best way to validate
+        errors = []
         if not figure_name:
-            error = 'Name is required.'
-
-        if error is not None:
-            flash(error)
+            errors += 'Name is required.'
+        if errors:
+            flash(errors)
         else:
-            db = get_db()
-            cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            print(g.user)
-            cursor.execute(
-                'INSERT INTO figure (figure_name, strength, dexterity, user_id)'
-                ' VALUES ((%s), (%s), (%s), (%s))',
-                (figure_name, strength, dexterity, g.user['id'])
-            )
-            db.commit()
+            with DatabaseServices() as dbase:
+                rows = dbase.add_figure(figure_name, strength, dexterity, g.user['id'])
+                print(rows)
             return redirect(url_for('lobby.index'))
 
     return render_template('figure/create.html')
@@ -41,92 +37,30 @@ def create():
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
 def update(id):
-    figure = get_figure(id)
-
     if request.method == 'POST':
         figure_name = request.form['figure_name']
         strength = request.form['strength']
         dexterity = request.form['dexterity']
         error = None
 
+        # TODO: Determine the best way to validate
         if not figure_name:
             error = 'Name is required.'
 
         if error is not None:
             flash(error)
         else:
-            db = get_db()
-            cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cursor.execute(
-                'UPDATE figure SET figure_name = (%s), strength = (%s), dexterity = (%s)'
-                ' WHERE id = (%s)',
-                (figure_name, strength, dexterity, id)
-            )
+            with DatabaseServices() as dbase:
+                rows = dbase.update_figure(figure_name, strength, dexterity, id)
+                print(rows)
             return redirect(url_for('lobby.index'))
-
-    return render_template('figure/update.html', figure=figure)
+    return render_template('figure/update.html', id)
 
 
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required
 def delete(id):
-    # get_figure(id)
-    db = get_db()
-    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cursor.execute('DELETE FROM figure WHERE id = (%s)', (id,))
+    with DatabaseServices() as dbase:
+        rows = dbase.delete_figure(id)
+        print(rows)
     return redirect(url_for('lobby.index'))
-
-
-def get_figure(id, check_user=True):
-    db = get_db()
-    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cursor.execute(
-        'SELECT p.id, figure_name, strength, dexterity, user_id'
-        ' FROM figure p JOIN game_user u ON p.user_id = u.id'
-        ' WHERE p.id = (%s)',
-        (id,)
-    )
-    figure = cursor.fetchone()
-
-    if figure is None:
-        abort(404, "Figure id {0} doesn't exist.".format(id))
-
-    if check_user and figure['user_id'] != g.user['id']:
-        abort(403)
-
-    return figure
-
-def get_figure_by_name(name):
-    db = get_db()
-    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cursor.execute(
-        'SELECT *'
-        ' FROM figure p'
-        ' WHERE p.figure_name = (%s)',
-        (name,)
-    )
-    figure = cursor.fetchone()
-
-    if figure is None:
-        abort(404, "Figure id {0} doesn't exist.".format(id))
-
-    return figure
-
-
-def get_figures_by_user(user_id):
-    db = get_db()
-    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cursor.execute(
-        'SELECT p.id, figure_name, strength, dexterity, user_id'
-        ' FROM figure p JOIN game_user u ON p.user_id = u.id'
-        ' WHERE u.id = (%s)',
-        (user_id,)
-    )
-    figures = cursor.fetchall()
-
-    if figures is None:
-        return []
-
-    return figures
-
-

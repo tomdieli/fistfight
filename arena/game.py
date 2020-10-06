@@ -1,4 +1,5 @@
 import random
+import json
 
 import psycopg2.extras
 
@@ -8,10 +9,9 @@ from flask import (
 )
 from werkzeug.exceptions import abort
 
-from arena.figure import get_figure, get_figure_by_name, get_figures_by_user
 from arena.auth import login_required
-from arena.db import get_db
-
+# from arena.database import Database
+from arena.database import DatabaseServices
 
 bp = Blueprint('game', __name__, url_prefix='/game')
 
@@ -20,91 +20,61 @@ bp = Blueprint('game', __name__, url_prefix='/game')
 @login_required
 def create():
     creator = request.form['creator']
-    db = get_db()
-    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cursor.execute(
-        'INSERT INTO game (owner)'
-        ' VALUES (%s)',
-        (creator,)
-    )
-    db.commit()
+    with DatabaseServices() as dbase:
+        rows = dbase.add_game(creator)
+        print(rows)
     return redirect(url_for('lobby.index'))
 
 
 @bp.route('/<int:game_id>/delete', methods=('POST',))
 @login_required
 def delete(game_id):
-    db = get_db()
-    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cursor.execute('DELETE FROM game WHERE id = (%s)', (game_id,))
+    with DatabaseServices() as dbase:
+        rows = dbase.delete_game(game_id)
+        print(rows)
     return redirect(url_for('lobby.index'))
 
 
-@bp.route('/join/<int:game_id>/user/<int:user_id>', methods=('POST',))
+@bp.route('/join/<int:game_id>/user/<int:user_id>')     # , methods=('POST',)
 @login_required
 def join(game_id, user_id):
-    figures = get_figures_by_user(user_id)
-    db = get_db()
-    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cursor.execute(
-        'SELECT username FROM game_user WHERE id = (%s)', (user_id,)
-    )
-    user_name = cursor.fetchone()
-
-    cursor.execute(
-        'SELECT id, owner FROM game WHERE id = (%s)', (game_id,)
-    )
-    current_game = cursor.fetchone()
-
-    return render_template('game/table.html', figures=figures, game=current_game, user=user_name[0])
+    with DatabaseServices() as dbase:
+        my_figures = json.loads(dbase.get_figures_by_user(user_id))
+        other_players = json.loads(dbase.get_figures_by_game_id(game_id))
+        user = json.loads(dbase.get_username_from_id(user_id))[0]['username']
+        current_game = json.loads(dbase.get_game_by_id(game_id))[0]
+    print(my_figures)
+    print(user)
+    print(current_game)
+    print(other_players)
+    return render_template('game/table.html', figures=my_figures,
+        game=current_game, user=user, other_players=other_players)
 
 
 @bp.route('/play/<int:game_id>', methods=('POST','GET'))
 @login_required
 def play(game_id):
-    print(request.data)
-    figname = request.form.get('figure')
-    figure = get_figure_by_name(figname)
-
-    db = get_db()
-    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-
-    cursor.execute(
-        'SELECT figure_name, strength, dexterity'
-        ' FROM figure f'
-        ' JOIN game g'
-        ' ON f.figure_name = ANY (g.players)'
-        ' WHERE g.id = %s'
-        ' ORDER BY f.dexterity DESC;', (game_id,)
-    )
-    figures = cursor.fetchall()
-
+    with DatabaseServices() as dbase:
+        figname = request.form.get('figure')
+        figure = dbase.get_figure_by_name(figname)
+        figures = json.loads(dbase.get_figures_by_game_id(game_id))
     return render_template('game/game.html', figures=figures, figure=figure)
 
+# TODO: extract these...
+def add_figure(f_name, game_id):
+    with DatabaseServices() as dbase:
+        print(f"Figure: {f_name}")
+        print(f"Game ID: {game_id}")
+        rows = dbase.add_figure_to_game(f_name, game_id)
+        print(rows)
+        figures = json.loads(dbase.get_figures_by_game_id(game_id))
+    return figures
 
-def add_player(f_name, game_id):
-    db = get_db()
-    cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cursor.execute(
-        'UPDATE game'
-        ' SET players = players || %s::text'
-        ' WHERE game.id = %s'
-        ' AND %s <> ALL (players);', (f_name, game_id, f_name)
-    )
-    db.commit()
-    figures = []
-    cursor.execute(
-        'SELECT players from game'
-        ' WHERE game.id = %s', (game_id,)
-    )
-    db.commit()
-    figure_list = cursor.fetchall()
-
-    return figure_list[0][0]
 
 def punch(attack_name, defend_name):
-    attacker = get_figure_by_name(attack_name)
-    defender = get_figure_by_name(defend_name)
+    with DatabaseServices() as dbase:
+        attacker = dbase.get_figure_by_name(attack_name)
+        defender = dbase.get_figure_by_name(defend_name)
     rolls = [random.randrange(1, 7) for i in range(0,3)]
     roll_total = sum(rolls)
     if roll_total > attacker["dexterity"]:

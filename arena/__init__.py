@@ -7,7 +7,8 @@ import redis
 from flask import Flask
 from flask_sockets import Sockets
 
-from arena.game import punch, add_player
+from arena.game import punch
+from arena.database import DatabaseServices
 
 REDIS_URL = os.environ['REDIS_URL']
 DATABASE_URL = os.environ['DATABASE_URL']
@@ -43,7 +44,8 @@ def create_app(test_config=None):
             try:
                 client.send(data)
             except Exception:
-                self.clients.remove(client)
+                # self.clients.remove(client)
+                raise
 
         def run(self):
             """Listens for new messages in Redis, and sends them to clients."""
@@ -93,36 +95,54 @@ def create_app(test_config=None):
 
     @sockets.route('/submit')
     def inbox(ws):
-        """Receives incoming chat messages, inserts them into Redis."""
+        """Receives incoming player messages, inserts them into Redis."""
+        app.logger.info("IN inbox")
         while not ws.closed:
+            # TODO: Is therea better way?
             # Sleep to prevent *contstant* context-switches.
+            app.logger.info("GETTING message....")
             gevent.sleep(0.1)
             message = ws.receive()
+        app.logger.info("GOT message! Type: %s" % type(message))
+        app.logger.info(message)
 
-            if message:
-                data = json.loads(message)
-                # app.logger.info(data)
-                if data['action'] == "punch":
-                    punch_result = punch(data["attacker"], data["attackee"])
-                    data['result_message'] = punch_result["message"]
-                    data['damage'] = punch_result["damage"]
-                elif data["action"] == "join-game":
-                    app.logger.info("%s has joined the game." % data['figure_name'])
-                    figure = data['figure_name']
-                    game_id = data['game_id']
-                    try:
-                        players = add_player(figure, game_id)
-                        app.logger.info(players)
-                        data["players"] = players
-                    except Exception as e:
-                        raise(e)
-                message = json.dumps(data)
-                app.logger.info(u'Inserting message: {}'.format(message))
-                redis.publish(REDIS_CHAN, message)
+        if message:
+            data = json.loads(message)
+            print(type(data))
+            print("DATA: {}".format(data))
+            if data['action'] == "punch":
+                punch_result = punch(data["attacker"], data["attackee"])
+                data['result_message'] = punch_result["message"]
+                data['damage'] = punch_result["damage"]
+            elif data["action"] == "join-game":
+                app.logger.info("%s is attempting to join the game." % data['figure_name'])
+                figure_name = data['figure_name']
+                app.logger.info("trying to get game_id %s" % data['game_id'])
+                game_id = data['game_id']
+                app.logger.info("figure_name: %s, game_id: %s" % (figure_name, game_id))
+                with DatabaseServices as db:
+                    app.logger.info("lookup fig...")
+                    figure = json.loads(db.get_figure_by_name(figure_name))
+                with DatabaseServices as db:
+                    app.logger.info("adding fig..." % figure)
+                    db.add_figure_to_game(figure['id'], game_id)
+                with DatabaseServices as db:
+                    app.logger.info("getting figs...")
+                    players = db.get_figures_by_game_id(game_id)
+                    app.logger.info(players)
+                with DatabaseServices as db:
+                    data["players"] = players
+                    data["result_message"] = u'figure_name: {}, game_id: {}'.format(figure, game_id)
+            elif data["action"] == "ping":
+                data["result_message"] = "pong"
+            message = json.dumps(data)
+            app.logger.info(u'Inserting message: {}'.format(message))
+            redis.publish(REDIS_CHAN, message)
 
     @sockets.route('/receive')
     def outbox(ws):
         """Sends outgoing chat messages, via `ChatBackend`."""
+        # app.logger.info(ws)
         chats.register(ws)
 
         while not ws.closed:

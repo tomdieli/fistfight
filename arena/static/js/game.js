@@ -7,8 +7,8 @@ if (window.location.protocol == "https:") {
   var ws_scheme = "ws://"
 };
   
-var inbox = new ReconnectingWebSocket(ws_scheme + location.host + "/receive");
-var outbox = new ReconnectingWebSocket(ws_scheme + location.host + "/submit");
+var inbox = new WebSocket(ws_scheme + location.host + "/receive");
+var outbox = new WebSocket(ws_scheme + location.host + "/submit");
 
 var players = JSON.parse(figures)
 var player = JSON.parse(figure)
@@ -18,7 +18,7 @@ const getNextPlayer = () => {
   nextPlayer = players.shift()
   players.push(nextPlayer)
 
-  var myBut = document.querySelector("#myButton")
+  var myBut = document.querySelector("#punch_button")
   if (player[3] === nextPlayer[0]) {
     myBut.disabled = false
     myBut.textContent = "Punch"

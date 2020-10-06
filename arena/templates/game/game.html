@@ -24,7 +24,7 @@
             {% endif %}
           {% endfor %}
         </select>
-        <button id="myButton" type="submit">Throw the Fist Punch</button>
+        <button id="punch_button" type="submit">Throw the Fist Punch</button>
       </form>
     </div>
     <div>
@@ -43,7 +43,6 @@
       {% endfor %}
     </div>
   </div>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.min.js"></script>
   <script type="text/javascript">
    var figures = '{{ figures|tojson }}'
    var figure = '{{ figure|tojson }}'

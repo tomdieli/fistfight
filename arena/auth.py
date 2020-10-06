@@ -37,11 +37,10 @@ def register():
                 'INSERT INTO game_user (username, password) VALUES (%s, %s)',
                 (username, generate_password_hash(password))
             )
-            # db.commit()
+            db.commit()
             return redirect(url_for('auth.login'))
         # TODO: Fix Flashing in this module!
         flash(error)
-
     return render_template('auth/register.html')
 
 
@@ -50,6 +49,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+
         db = get_db()
         cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         error = None
@@ -67,9 +67,7 @@ def login():
             session.clear()
             session['user_id'] = user['id']
             return redirect(url_for('index'))
-
         flash(error)
-
     return render_template('auth/login.html')
 
 
@@ -99,7 +97,5 @@ def login_required(view):
     def wrapped_view(**kwargs):
         if g.user is None:
             return redirect(url_for('auth.login'))
-
         return view(**kwargs)
-
     return wrapped_view

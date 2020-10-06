@@ -14,7 +14,7 @@ def test_game(test_client):
 
     # test join game
     assert create_figure(test_client , 'Blorg', 12, 12).status_code == 200
-    rv = test_client.post('/game/join/1/user/1', follow_redirects=True)
+    rv = test_client.get('/game/join/1/user/1', follow_redirects=True)
     assert rv.status_code == 200
 
     # test play game
