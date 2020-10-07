@@ -5,8 +5,8 @@ if (window.location.protocol == "https:") {
   var ws_scheme = "ws://"
 };
   
-var inbox = new ReconnectingWebSocket(ws_scheme + location.host + "/receive");
-var outbox = new ReconnectingWebSocket(ws_scheme + location.host + "/submit");
+var inbox = new WebSocket(ws_scheme + location.host + "/table/receive");
+var outbox = new WebSocket(ws_scheme + location.host + "/table/submit");
 
 //var user = JSON.parse(user)
 var game = JSON.parse(game)
@@ -55,7 +55,7 @@ inbox.onmessage = function(message) {
 //     // this.inbox = new WebSocket(inbox.url);
 // };
 
-inbox.onclose = function(e) {
+inbox.onclose = function() {
   console.error('Chat socket closed unexpectedly');
   this.inbox = new WebSocket(inbox.url);
 };
@@ -65,9 +65,9 @@ inbox.onclose = function(e) {
 //     // this.outbox = new WebSocket(outbox.url);
 // };
 
-outbox.onclose = function(e) {
+outbox.onclose = function() {
   console.error('Chat socket closed unexpectedly');
-  this.outbox = new ReconnectingWebSocket(outbox.url);
+  this.outbox = new WebSocket(outbox.url);
 };
 
 document.querySelector("#join-form").addEventListener("submit", (event) => {
@@ -80,6 +80,8 @@ document.querySelector("#join-form").addEventListener("submit", (event) => {
     "figure_name": selection,
     "user_name": user
   }
+  console.log("sending...")
+  console.log(join_game)
   outbox.send(JSON.stringify(join_game));
 });
 

@@ -35,7 +35,7 @@ def delete(game_id):
     return redirect(url_for('lobby.index'))
 
 
-@bp.route('/join/<int:game_id>/user/<int:user_id>')     # , methods=('POST',)
+@bp.route('/<int:game_id>/join/<int:user_id>')     # , methods=('POST',)
 @login_required
 def join(game_id, user_id):
     with DatabaseServices() as dbase:
@@ -48,7 +48,7 @@ def join(game_id, user_id):
     print(current_game)
     print(other_players)
     return render_template('game/table.html', figures=my_figures,
-        game=current_game, user=user, other_players=other_players)
+        game=current_game, user=user)   # , other_players=other_players
 
 
 @bp.route('/play/<int:game_id>', methods=('POST','GET'))

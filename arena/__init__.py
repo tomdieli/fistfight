@@ -44,7 +44,7 @@ def create_app(test_config=None):
             try:
                 client.send(data)
             except Exception:
-                self.clients.remove(client)
+                # self.clients.remove(client)
                 raise
 
         def run(self):
@@ -88,21 +88,22 @@ def create_app(test_config=None):
 
     from . import figure
     app.register_blueprint(figure.bp)
-
-    from . import game
-    app.register_blueprint(game.bp)
     
 
-    @sockets.route('/submit')
+    @sockets.route('/table/submit')
     def inbox(ws):
         """Receives incoming player messages, inserts them into Redis."""
         app.logger.info("IN inbox")
+        # print(ws.readystate)
+        # print(ws.bufferedamount)
         while not ws.closed:
             # TODO: Is therea better way?
             # Sleep to prevent *contstant* context-switches.
             app.logger.info("GETTING message....")
             gevent.sleep(0.1)
             message = ws.receive()
+            app.logger.info(message)
+            break
         app.logger.info("GOT message! Type: %s" % type(message))
         app.logger.info(message)
 
@@ -120,17 +121,17 @@ def create_app(test_config=None):
                 app.logger.info("trying to get game_id %s" % data['game_id'])
                 game_id = data['game_id']
                 app.logger.info("figure_name: %s, game_id: %s" % (figure_name, game_id))
-                with DatabaseServices as db:
-                    app.logger.info("lookup fig...")
-                    figure = json.loads(db.get_figure_by_name(figure_name))
-                with DatabaseServices as db:
-                    app.logger.info("adding fig..." % figure)
+                with DatabaseServices() as db:
+                    app.logger.info("lookup fig... %s" % figure_name)
+                    figure = json.loads(db.get_figure_by_name(figure_name))[0]
+                with DatabaseServices() as db:
+                    app.logger.info("adding fig... %s" % figure)
                     db.add_figure_to_game(figure['id'], game_id)
-                with DatabaseServices as db:
+                with DatabaseServices() as db:
                     app.logger.info("getting figs...")
                     players = db.get_figures_by_game_id(game_id)
                     app.logger.info(players)
-                with DatabaseServices as db:
+                with DatabaseServices() as db:
                     data["players"] = players
                     data["result_message"] = u'figure_name: {}, game_id: {}'.format(figure, game_id)
             elif data["action"] == "ping":
@@ -139,7 +140,7 @@ def create_app(test_config=None):
             app.logger.info(u'Inserting message: {}'.format(message))
             redis.publish(REDIS_CHAN, message)
 
-    @sockets.route('/receive')
+    @sockets.route('/table/receive')
     def outbox(ws):
         """Sends outgoing chat messages, via `ChatBackend`."""
         # app.logger.info(ws)
@@ -148,5 +149,8 @@ def create_app(test_config=None):
         while not ws.closed:
             # Context switch while `ChatBackend.start` is running in the background.
             gevent.sleep(0.1)
+
+    from . import game
+    app.register_blueprint(game.bp)
 
     return app

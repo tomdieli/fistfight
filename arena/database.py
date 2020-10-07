@@ -175,5 +175,7 @@ class DatabaseServices:
             ' AND %s <> ALL (players);'
         )
         qargs = (figure_id, game_id)
+        print("QUERY: %s" % query)
+        print("QARGS: %s, %s" % qargs)
         return self.database.update_rows(query, qargs)
     
