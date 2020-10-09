@@ -93,53 +93,40 @@ def create_app(test_config=None):
     @sockets.route('/table/submit')
     def inbox(ws):
         """Receives incoming player messages, inserts them into Redis."""
-        app.logger.info("IN inbox")
-        # print(ws.readystate)
-        # print(ws.bufferedamount)
         while not ws.closed:
             # TODO: Is therea better way?
             # Sleep to prevent *contstant* context-switches.
-            app.logger.info("GETTING message....")
             gevent.sleep(0.1)
             message = ws.receive()
-            app.logger.info(message)
-            # yield message
-            break
-        app.logger.info("GOT message! Type: %s" % type(message))
-        app.logger.info(message)
-
-        if message:
-            data = json.loads(message)
-            print(type(data))
-            print("DATA: {}".format(data))
-            if data['action'] == "punch":
-                punch_result = punch(data["attacker"], data["attackee"])
-                data['result_message'] = punch_result["message"]
-                data['damage'] = punch_result["damage"]
-            elif data["action"] == "join-game":
-                app.logger.info("%s is attempting to join the game." % data['figure_name'])
-                figure_name = data['figure_name']
-                app.logger.info("trying to get game_id %s" % data['game_id'])
-                game_id = data['game_id']
-                app.logger.info("figure_name: %s, game_id: %s" % (figure_name, game_id))
-                with DatabaseServices() as db:
-                    app.logger.info("lookup fig... %s" % figure_name)
-                    figure = json.loads(db.get_figure_by_name(figure_name))[0]
-                with DatabaseServices() as db:
-                    app.logger.info("adding fig... %s" % figure)
-                    db.add_figure_to_game(figure['figure_name'], game_id)
-                with DatabaseServices() as db:
-                    app.logger.info("getting figs...")
-                    players = db.get_figures_by_game_id(game_id)
-                    app.logger.info(players)
-                with DatabaseServices() as db:
-                    data["players"] = players
-                    data["result_message"] = u'figure_name: {}, game_id: {}'.format(figure, game_id)
-            elif data["action"] == "ping":
-                data["result_message"] = "pong"
-            message = json.dumps(data)
-            app.logger.info(u'Inserting message: {}'.format(message))
-            redis.publish(REDIS_CHAN, message)
+            if message:
+                data = json.loads(message)
+                if data['action'] == "punch":
+                    punch_result = punch(data["attacker"], data["attackee"])
+                    data['result_message'] = punch_result["message"]
+                    data['damage'] = punch_result["damage"]
+                elif data["action"] == "join-game":
+                    app.logger.info("%s is attempting to join the game." % data['figure_name'])
+                    figure_name = data['figure_name']
+                    app.logger.info("trying to get game_id %s" % data['game_id'])
+                    game_id = data['game_id']
+                    app.logger.info("figure_name: %s, game_id: %s" % (figure_name, game_id))
+                    with DatabaseServices() as db:
+                        # app.logger.info("lookup fig... %s" % figure_name)
+                        figure = json.loads(db.get_figure_by_name(figure_name))[0]
+                    with DatabaseServices() as db:
+                        # app.logger.info("adding fig... %s" % figure)
+                        db.add_figure_to_game(figure['figure_name'], game_id)
+                    with DatabaseServices() as db:
+                        # app.logger.info("getting figs...")
+                        players = db.get_figures_by_game_id(game_id)
+                    with DatabaseServices() as db:
+                        data["players"] = players
+                        data["result_message"] = u'figure_name: {}, game_id: {}'.format(figure, game_id)
+                elif data["action"] == "ping":
+                    data["result_message"] = "pong"
+                message = json.dumps(data)
+                app.logger.info(u'Inserting message: {}'.format(message))
+                redis.publish(REDIS_CHAN, message)
 
     @sockets.route('/table/receive')
     def outbox(ws):
