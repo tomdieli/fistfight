@@ -44,7 +44,7 @@ def create_app(test_config=None):
             try:
                 client.send(data)
             except Exception:
-                # self.clients.remove(client)
+                self.clients.remove(client)
                 raise
 
         def run(self):
@@ -103,6 +103,7 @@ def create_app(test_config=None):
             gevent.sleep(0.1)
             message = ws.receive()
             app.logger.info(message)
+            # yield message
             break
         app.logger.info("GOT message! Type: %s" % type(message))
         app.logger.info(message)
@@ -126,7 +127,7 @@ def create_app(test_config=None):
                     figure = json.loads(db.get_figure_by_name(figure_name))[0]
                 with DatabaseServices() as db:
                     app.logger.info("adding fig... %s" % figure)
-                    db.add_figure_to_game(figure['id'], game_id)
+                    db.add_figure_to_game(figure['figure_name'], game_id)
                 with DatabaseServices() as db:
                     app.logger.info("getting figs...")
                     players = db.get_figures_by_game_id(game_id)

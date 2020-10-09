@@ -7,8 +7,10 @@ if (window.location.protocol == "https:") {
   var ws_scheme = "ws://"
 };
   
-var inbox = new WebSocket(ws_scheme + location.host + "/receive");
-var outbox = new WebSocket(ws_scheme + location.host + "/submit");
+// var inbox = new WebSocket(ws_scheme + location.host + "/receive");
+// var outbox = new WebSocket(ws_scheme + location.host + "/submit");
+var inbox = new ReconnectingWebSocket(ws_scheme + location.host + "/table/receive");
+var outbox = new ReconnectingWebSocket(ws_scheme + location.host + "/table/submit");
 
 var players = JSON.parse(figures)
 var player = JSON.parse(figure)
@@ -17,7 +19,10 @@ var nextPlayer = null
 const getNextPlayer = () => {
   nextPlayer = players.shift()
   players.push(nextPlayer)
-
+  console.log("IN getNextPlayer")
+  console.log("Next player: " + nextPlayer)
+  console.log("Players: " + players)
+  console.log("Player: " + player)
   var myBut = document.querySelector("#punch_button")
   if (player[3] === nextPlayer[0]) {
     myBut.disabled = false
@@ -79,12 +84,13 @@ inbox.onmessage = function(message) {
 
 inbox.onclose = function(){
     console.log('inbox closed');
-    this.inbox = new WebSocket(inbox.url);
+    // this.inbox = new WebSocket(inbox.url);
+    this.inbox = new ReconnectingWebSocket(inbox.url);
 };
 
 outbox.onclose = function(){
     console.log('outbox closed');
-    this.outbox = new WebSocket(outbox.url);
+    this.outbox = new ReconnectingWebSocket(outbox.url);
 };
 
 document.querySelector("#input-form").addEventListener("submit", (event) => {

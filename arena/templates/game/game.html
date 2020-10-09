@@ -12,7 +12,7 @@
       <form id="input-form" class="form-inline">
         <div>
           <b>
-            <p id="player1">{{figure.figure_name}}</p>
+            <p id="player1">{{ figure.figure_name }}</p>
             <p>ST: {{ figure.strength }} DX: {{ figure.dexterity }}</p>
             <p id="player1_hits">Hits Remaining: {{ figure.strength }}</p>
           </b>
@@ -43,6 +43,7 @@
       {% endfor %}
     </div>
   </div>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.js"></script>
   <script type="text/javascript">
    var figures = '{{ figures|tojson }}'
    var figure = '{{ figure|tojson }}'

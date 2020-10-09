@@ -8,7 +8,7 @@
     <form id="join-form" class="form-inline">
       <select name="figure" id="figure" width="300px" aria-placeholder="Select someone to fight">
         {% for x in figures %}
-        <option value="{{ x.figure_name }}"{% if loop.first %} SELECTED{% endif %}>{{ x.figure_name }}</option>
+          <option value="{{ x.figure_name }}"{% if loop.first %} SELECTED{% endif %}>{{ x.figure_name }}</option>
         {% endfor %}
       </select>
       <button id="ready-button" type="submit">Ready</button>
@@ -31,6 +31,7 @@
   <script type="text/javascript">
     var user = '{{ user }}';
     var game = '{{ game|tojson }}';
+    var game_owner = '{{ game_owner }}';
   </script>
   <script type="text/javascript" src="/static/js/table.js" defer></script>
 </body>

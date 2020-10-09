@@ -132,6 +132,15 @@ class DatabaseServices:
         qargs = (figure_name,)
         return self.database.select_rows(query, qargs)
 
+    def get_user_by_id(self, user_id):
+        query = (
+            r'SELECT id, username'\
+            r' FROM user u'\
+            r' WHERE u.id = (%s)'
+        )
+        qargs = (user_id,)
+        return self.database.select_rows(query, qargs)
+
     def add_game(self, creator):
         query = (
             r'INSERT INTO game (owner)'
@@ -167,15 +176,15 @@ class DatabaseServices:
         qargs = (game_id,)
         return self.database.select_rows(query, qargs)
 
-    def add_figure_to_game(self, figure_id, game_id):
+    def add_figure_to_game(self, figure_name, game_id):
         query = (
             'UPDATE game'
             ' SET players = players || %s::text'
             ' WHERE game.id = %s'
             ' AND %s <> ALL (players);'
         )
-        qargs = (figure_id, game_id)
+        qargs = (figure_name, game_id, figure_name)
         print("QUERY: %s" % query)
-        print("QARGS: %s, %s" % qargs)
+        print("QARGS: %s, %s, %s" % qargs)
         return self.database.update_rows(query, qargs)
     

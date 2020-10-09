@@ -43,38 +43,37 @@ def join(game_id, user_id):
         other_players = json.loads(dbase.get_figures_by_game_id(game_id))
         user = json.loads(dbase.get_username_from_id(user_id))[0]['username']
         current_game = json.loads(dbase.get_game_by_id(game_id))[0]
-    print(my_figures)
-    print(user)
-    print(current_game)
-    print(other_players)
     return render_template('game/table.html', figures=my_figures,
-        game=current_game, user=user)   # , other_players=other_players
+        game=current_game, user=user, game_owner=current_game['owner'])   # , other_players=other_players
 
 
 @bp.route('/play/<int:game_id>', methods=('POST','GET'))
 @login_required
 def play(game_id):
     with DatabaseServices() as dbase:
-        figname = request.form.get('figure')
-        figure = dbase.get_figure_by_name(figname)
+        figname = request.args.get('figure')
+        print("FIGURE: %s" % figname)
+        figure = json.loads(dbase.get_figure_by_name(figname))[0]
+        print("FIGURE OBJ: %s" % figure)
         figures = json.loads(dbase.get_figures_by_game_id(game_id))
+        
     return render_template('game/game.html', figures=figures, figure=figure)
 
-# TODO: extract these...
-def add_figure(f_name, game_id):
-    with DatabaseServices() as dbase:
-        print(f"Figure: {f_name}")
-        print(f"Game ID: {game_id}")
-        rows = dbase.add_figure_to_game(f_name, game_id)
-        print(rows)
-        figures = json.loads(dbase.get_figures_by_game_id(game_id))
-    return figures
+# # TODO: extract these...
+# def add_figure(f_name, game_id):
+#     with DatabaseServices() as dbase:
+#         print(f"Figure: {f_name}")
+#         print(f"Game ID: {game_id}")
+#         rows = dbase.add_figure_to_game(f_name, game_id)
+#         print(rows)
+#         figures = json.loads(dbase.get_figures_by_game_id(game_id))
+#     return figures
 
 
 def punch(attack_name, defend_name):
     with DatabaseServices() as dbase:
-        attacker = dbase.get_figure_by_name(attack_name)
-        defender = dbase.get_figure_by_name(defend_name)
+        attacker = json.loads(dbase.get_figure_by_name(attack_name))[0]
+        defender = json.loads(dbase.get_figure_by_name(defend_name))[0]
     rolls = [random.randrange(1, 7) for i in range(0,3)]
     roll_total = sum(rolls)
     if roll_total > attacker["dexterity"]:
