@@ -1,12 +1,8 @@
-import psycopg2.extras
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect,
+    render_template, request, url_for
 )
-from werkzeug.exceptions import abort
-
 from arena.auth import login_required
-#from arena.db import get_db
-#from arena.database import Database
 from arena.database import DatabaseServices
 
 bp = Blueprint('figure', __name__, url_prefix='/figure')

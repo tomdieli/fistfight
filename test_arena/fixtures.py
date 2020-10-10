@@ -1,5 +1,6 @@
 import os
 import tempfile
+from subprocess import Popen, PIPE
 
 import pytest
 
@@ -24,13 +25,17 @@ def test_client():
 
 @pytest.fixture
 def ws_test_client():
-    flask_app = create_app()
+    with Popen(['gunicorn', '-k', 'flask_sockets.worker', 'arena:create_app()'], stdout=PIPE) as proc:
+        yield
+
+
+    # flask_app = create_app()
     # db_fd, flask_app.config['DATABASE'] = tempfile.mkstemp()
-    flask_app.config['TESTING'] = True
-    with flask_app.test_client() as testing_client:
-        # with flask_app.app_context():
-        #     pass
-        yield testing_client
+    # flask_app.config['TESTING'] = True
+    # with flask_app.test_client() as testing_client:
+    #     # with flask_app.app_context():
+    #     #     pass
+    #     yield testing_client
 
     # os.close(db_fd)
     # os.unlink(flask_app.config['DATABASE'])

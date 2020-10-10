@@ -57,7 +57,7 @@ def play(game_id):
         print("FIGURE OBJ: %s" % figure)
         figures = json.loads(dbase.get_figures_by_game_id(game_id))
         
-    return render_template('game/game.html', figures=figures, figure=figure)
+    return render_template('game/game.html', figures=figures, figure=figure, game_id=game_id)
 
 # # TODO: extract these...
 # def add_figure(f_name, game_id):

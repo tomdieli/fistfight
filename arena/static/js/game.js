@@ -6,15 +6,15 @@ if (window.location.protocol == "https:") {
 } else {
   var ws_scheme = "ws://"
 };
-  
-// var inbox = new WebSocket(ws_scheme + location.host + "/receive");
-// var outbox = new WebSocket(ws_scheme + location.host + "/submit");
-var inbox = new ReconnectingWebSocket(ws_scheme + location.host + "/table/receive");
-var outbox = new ReconnectingWebSocket(ws_scheme + location.host + "/table/submit");
 
 var players = JSON.parse(figures)
 var player = JSON.parse(figure)
 var nextPlayer = null
+  
+// var inbox = new WebSocket(ws_scheme + location.host + "/receive");
+// var outbox = new WebSocket(ws_scheme + location.host + "/submit");
+var inbox = new ReconnectingWebSocket(ws_scheme + location.host + "/game" + game_id + "/receive");
+var outbox = new ReconnectingWebSocket(ws_scheme + location.host  + "/game" + game_id + "/submit");
 
 const getNextPlayer = () => {
   nextPlayer = players.shift()

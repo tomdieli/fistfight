@@ -2,3 +2,16 @@ Test these endpoints:
 
 Endpoint       Methods    Rule
 -------------  ---------  --------------------------------------
+auth.login     GET, POST  /auth/login
+auth.logout    GET        /auth/logout
+auth.register  GET, POST  /auth/register
+figure.create  GET, POST  /figure/create
+figure.delete  POST       /figure/<int:id>/delete
+figure.update  GET, POST  /figure/<int:id>/update
+game.create    POST       /game/new_game
+game.delete    POST       /game/<int:game_id>/delete
+game.join      GET        /game/<int:game_id>/join/<int:user_id>
+game.play      GET, POST  /game/play/<int:game_id>
+index          GET        /
+lobby.index    GET, POST  /
+static         GET        /static/<path:filename>

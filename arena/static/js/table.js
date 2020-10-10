@@ -4,16 +4,12 @@ if (window.location.protocol == "https:") {
 } else {
   var ws_scheme = "ws://"
 };
-  
-// var inbox = new WebSocket(ws_scheme + location.host + "/table/receive");
-// var outbox = new WebSocket(ws_scheme + location.host + "/table/submit");
-var inbox = new ReconnectingWebSocket(ws_scheme + location.host + "/table/receive");
-var outbox = new ReconnectingWebSocket(ws_scheme + location.host + "/table/submit");
 
-//var user = JSON.parse(user)
 var game = JSON.parse(game)
 var my_figure = null
 
+var inbox = new ReconnectingWebSocket(ws_scheme + location.host + "/game" + game.id + "/receive");
+var outbox = new ReconnectingWebSocket(ws_scheme + location.host + "/game" + game.id + "/submit");
 
 inbox.onmessage = function(message) {
   console.log("inbox.onmessage hit")

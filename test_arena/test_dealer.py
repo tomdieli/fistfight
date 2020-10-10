@@ -7,7 +7,7 @@ async def do_user():
     await asyncio.sleep(0.5)
 
     ws_test = (
-        WSTest("ws://127.0.0.1:8000/submit")
+        WSTest("ws://127.0.0.1:8000/table/submit")
         .with_message(
             WSMessage()
             .with_attribute("type", "message")
@@ -22,13 +22,9 @@ async def do_other_user():
     await asyncio.sleep(0.5)
 
     ws_test = (
-        WSTest("ws://127.0.0.1:8000/receive")
-        .with_response_timeout(0.5)
-        .with_response(
-            WSResponse()
-            .with_attribute("type", "message")
-            .with_attribute("action", "ping")
-        )
+        WSTest("ws://127.0.0.1:8000/table/receive")
+        .with_response_timeout(1.5)
+        .with_response(WSResponse())
     )
     await ws_test.run()
     assert ws_test.is_complete()

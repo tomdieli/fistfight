@@ -1,0 +1,36 @@
+nav {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+body {
+    text-align: center;
+    font-stretch: ultra-expanded;
+    background-color: slategray;
+    background-image: url("../index.jpeg");
+    background-blend-mode: screen;
+}
+
+label {
+    font-family: fantasy;
+    font-stretch: wider;
+}
+
+h1 {
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-stretch: normal;
+}
+
+button {
+    font-family: fantasy;
+}
+
+a {
+    color: darkblue;
+    font-size: larger;
+}
+
+.flex-container {
+    display: flex;
+    justify-content: space-evenly;
+}
