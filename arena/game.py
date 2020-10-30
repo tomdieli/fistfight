@@ -10,8 +10,8 @@ from flask import (
 from werkzeug.exceptions import abort
 
 from arena.auth import login_required
-# from arena.database import Database
 from arena.database import DatabaseServices
+
 
 bp = Blueprint('game', __name__, url_prefix='/game')
 
@@ -22,8 +22,7 @@ def create():
     creator = request.form['creator']
     with DatabaseServices() as dbase:
         rows = dbase.add_game(creator)
-        print(rows)
-    return redirect(url_for('lobby.index'))
+    return redirect(url_for('lobby.index'), code=307)
 
 
 @bp.route('/<int:game_id>/delete', methods=('POST',))
@@ -31,11 +30,10 @@ def create():
 def delete(game_id):
     with DatabaseServices() as dbase:
         rows = dbase.delete_game(game_id)
-        print(rows)
-    return redirect(url_for('lobby.index'))
+    return redirect(url_for('lobby.index'), code=307)
 
 
-@bp.route('/<int:game_id>/join/<int:user_id>')     # , methods=('POST',)
+@bp.route('/<int:game_id>/join/<int:user_id>', methods=('POST',))
 @login_required
 def join(game_id, user_id):
     with DatabaseServices() as dbase:
@@ -52,22 +50,10 @@ def join(game_id, user_id):
 def play(game_id):
     with DatabaseServices() as dbase:
         figname = request.args.get('figure')
-        print("FIGURE: %s" % figname)
         figure = json.loads(dbase.get_figure_by_name(figname))[0]
-        print("FIGURE OBJ: %s" % figure)
         figures = json.loads(dbase.get_figures_by_game_id(game_id))
-        
-    return render_template('game/game.html', figures=figures, figure=figure, game_id=game_id)
-
-# # TODO: extract these...
-# def add_figure(f_name, game_id):
-#     with DatabaseServices() as dbase:
-#         print(f"Figure: {f_name}")
-#         print(f"Game ID: {game_id}")
-#         rows = dbase.add_figure_to_game(f_name, game_id)
-#         print(rows)
-#         figures = json.loads(dbase.get_figures_by_game_id(game_id))
-#     return figures
+    return render_template('game/game.html', figures=figures,
+                            figure=figure, game_id=game_id)
 
 
 def punch(attack_name, defend_name):

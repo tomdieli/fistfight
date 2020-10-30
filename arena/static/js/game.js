@@ -1,6 +1,4 @@
 // Support TLS-specific URLs, when appropriate.
-
-
 if (window.location.protocol == "https:") {
   var ws_scheme = "wss://";
 } else {
@@ -10,9 +8,7 @@ if (window.location.protocol == "https:") {
 var players = JSON.parse(figures)
 var player = JSON.parse(figure)
 var nextPlayer = null
-  
-// var inbox = new WebSocket(ws_scheme + location.host + "/receive");
-// var outbox = new WebSocket(ws_scheme + location.host + "/submit");
+
 var inbox = new ReconnectingWebSocket(ws_scheme + location.host + "/game" + game_id + "/receive");
 var outbox = new ReconnectingWebSocket(ws_scheme + location.host  + "/game" + game_id + "/submit");
 
@@ -20,16 +16,22 @@ const getNextPlayer = () => {
   nextPlayer = players.shift()
   players.push(nextPlayer)
   console.log("IN getNextPlayer")
-  console.log("Next player: " + nextPlayer)
+  console.log("Next player: " + JSON.stringify(nextPlayer))
   console.log("Players: " + players)
   console.log("Player: " + player)
   var myBut = document.querySelector("#punch_button")
-  if (player[3] === nextPlayer[0]) {
+  if( players.length === 1 ){
+    myBut.disabled = true
+    myBut.textContent = `${nextPlayer.figure_name} wins!!!`
+    return null
+  } 
+  else if(player.id === nextPlayer.id) {
     myBut.disabled = false
     myBut.textContent = "Punch"
-  } else {
+  }
+  else {
     myBut.disabled = true
-    myBut.textContent = `${nextPlayer[0]}'s turn`
+    myBut.textContent = `${nextPlayer.figure_name}'s turn`
   }
 }
 
@@ -49,18 +51,13 @@ inbox.onmessage = function(message) {
         player_hits = document.querySelector("#player1_hits")
       }
       player_stat = player_hits.textContent
-      console.log(player_stat)
       digit = parseInt(player_stat.match(/: \d+/g)[0].split(' ')[1]);
-      console.log(digit)
       digit -= my_data.damage
       if ( digit <= 0){
         new_val = "DEAD"
-        console.log(my_data.attackee)
-        console.log(players.indexOf(my_data.attackee))
-        console.log(players)
-        console.log("BEFORE:" + players)
         for(i=0; i < players.length; ++i){
-          if(players[i][0] === my_data.attackee){
+          console.log("Comparing " + players[i]['figure_name'] + " to " +  my_data.attackee)
+          if(players[i]['figure_name'] === my_data.attackee){
             players.splice(i, 1)
           }
         }
@@ -70,7 +67,6 @@ inbox.onmessage = function(message) {
             selectobject.remove(i);
           }
         }
-        console.log("AFTER:" + players)  
       } else {
         new_val = `Hits Remaining: ${digit}`
       }

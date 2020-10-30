@@ -42,21 +42,27 @@ def inbox(ws, room_name):
                     players = db.get_figures_by_game_id(game_id)
                 data["players"] = players
                 data["result_message"] = u'figure_name: {}, game_id: {}'.format(figure, game_id)
+            elif(data["action"] == "join-lobby"):
+                with DatabaseServices() as db:
+                    games = json.loads(db.get_games())
+                    data["games"] = games
             message = json.dumps(data)
-            print(u'Inserting message: {}'.format(message))
+            # print(u'Inserting message: {}'.format(message))
             redis.publish(room_name, message)
 
 @bp.route('/<string:room_name>/receive')
 def outbox(ws, room_name):
-    """Sends outgoing chat messages, via `Dealer`."""
+    """Sends outgoing status messages, via `Dealer`."""
+    print("creating new dealer...")
     dealer = Dealer(room_name)
     dealer.start()
     dealer.register(ws)
 
     while not ws.closed:
-        # Context switch while `ChatBackend.start` is running in the background.
+        # Context switch while `Dealer.start` is running in the background.
         gevent.sleep(0.1)
-
+    print("destroying new dealer...")
+    
 
 class Dealer(object):
     """Interface for registering and updating WebSocket clients."""
@@ -71,7 +77,7 @@ class Dealer(object):
         for message in self.pubsub.listen():
             data = message.get('data')
             if message['type'] == 'message':
-                print(u'Sending message: {}'.format(data))
+                # print(u'Sending message: {}'.format(data))
                 yield data
 
     def register(self, client):

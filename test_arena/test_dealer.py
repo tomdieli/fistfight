@@ -1,37 +1,42 @@
+import json
 import asyncio
-from pywsitest import WSTest, WSResponse, WSMessage
+from subprocess import Popen, PIPE
 
-from .fixtures import ws_test_client as test_client
+import websockets
 
-async def do_user():
-    await asyncio.sleep(0.5)
-
-    ws_test = (
-        WSTest("ws://127.0.0.1:8000/table/submit")
-        .with_message(
-            WSMessage()
-            .with_attribute("type", "message")
-            .with_attribute("action", "ping")
-        )
-    )
-    await ws_test.run()
-    assert ws_test.is_complete()
+# from .fixtures import ws_test_client as test_client
 
 
-async def do_other_user():
-    await asyncio.sleep(0.5)
+async def sender():
+    await asyncio.sleep(1.5)
+    test_data = {"type": "message", "message": "Hello, there!"}
+    send_url = "ws://127.0.0.1:5000/testor/submit"
+    async with websockets.connect(send_url) as websocket:
+        await websocket.send(json.dumps(test_data))
+    print("SENT!")
+    print(test_data)
+    recv_url = "ws://127.0.0.1:5000/testor/receive"
+    async with websockets.connect(recv_url) as websocket:
+        response_string = await websocket.recv()      # (json.dumps(test_data))
+        print(json.loads(response_string))
 
-    ws_test = (
-        WSTest("ws://127.0.0.1:8000/table/receive")
-        .with_response_timeout(1.5)
-        .with_response(WSResponse())
-    )
-    await ws_test.run()
-    assert ws_test.is_complete()
+async def gedder():
+    # await asyncio.sleep(0.5)
+    recv_url = "ws://127.0.0.1:5000/testor/receive"
+    async with websockets.connect(recv_url) as websocket:
+        response_string = await websocket.recv()      # (json.dumps(test_data))
+        print(json.loads(response_string))
+        # await asyncio.sleep(0.5)
 
-async def run_dos():
-    await asyncio.gather(do_user(),do_other_user())
 
-def test_dealer(test_client):
-    asyncio.get_event_loop().run_until_complete(run_dos())
+def test_dealer():
+    gunicorn_pid = Popen(['gunicorn',
+                            '-k', 'flask_sockets.worker',
+                            '-b', '127.0.0.1:5000',
+                            'arena:create_app()'])
+    
+    asyncio.get_event_loop().run_until_complete(sender())
+    # print("SENT!")
+    # asyncio.get_event_loop().run_until_complete(gedder())
+    gunicorn_pid.terminate()
 

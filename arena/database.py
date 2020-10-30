@@ -58,8 +58,6 @@ class Database:
             return f"{cur.rowcount} rows deleted."
 
 
-# DB services
-# TODO: extract these
 class DatabaseServices:
     """Fistfight-specific database services."""
 
@@ -126,10 +124,18 @@ class DatabaseServices:
 
     def get_figure_by_name(self, figure_name):
         query =\
-            r'SELECT *'\
+            r'SELECT id, figure_name, strength, dexterity'\
             r' FROM figure p'\
             r' WHERE p.figure_name = (%s)'
         qargs = (figure_name,)
+        return self.database.select_rows(query, qargs)
+
+    def get_figure_by_id(self, id):
+        query =\
+            r'SELECT p.id, figure_name, strength, dexterity'\
+            r' FROM figure p'\
+            r' WHERE p.id = (%s)'
+        qargs = (id,)
         return self.database.select_rows(query, qargs)
 
     def get_user_by_id(self, user_id):
@@ -139,7 +145,10 @@ class DatabaseServices:
             r' WHERE u.id = (%s)'
         )
         qargs = (user_id,)
-        return self.database.select_rows(query, qargs)
+        r = self.database.select_rows(query, qargs)
+        print(r)
+        print(type(r))
+        return r    #self.database.select_rows(query, qargs)
 
     def add_game(self, creator):
         query = (
@@ -166,7 +175,7 @@ class DatabaseServices:
 
     def get_figures_by_game_id(self, game_id):
         query = (
-            'SELECT figure_name, strength, dexterity'
+            'SELECT f.id, figure_name, strength, dexterity'
             ' FROM figure f'
             ' JOIN game g'
             ' ON f.figure_name = ANY (g.players)'

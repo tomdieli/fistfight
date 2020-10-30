@@ -20,12 +20,14 @@
     <textarea name="status" id="status" cols="40" rows="20"></textarea>
   </div>
   <div id="otherPlayers">
-    <h2> The Other Players:</h2>
-    <ul>
-      {% for x in other_players %}
-        <li>{{ x.figure_name }}</li>
-      {% endfor %}
-    </ul>
+    <h3>The Players</h3>
+    <p id="playerList">
+      <ul>
+        {% for x in other_players %}
+          <li>{{ x.figure_name }}</li>
+        {% endfor %}
+      </ul>
+    </p>
   </div>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.js"></script>
   <script type="text/javascript">

@@ -7,24 +7,23 @@
     <a class="action" href="{{ url_for('figure.create') }}">New Figure</a>
     <hr>
     {% for figure in figures %}
-      <h2>{{ figure['figure_name'] }}</h3>
-      <p>by {{ figure['username'] }}</p>
       {% if g.user['id'] == figure['user_id'] %}
+        <p><b>{{ figure['figure_name'] }}</b></p>
+        <p id="{{ figure['figure_name'] }}">
+          ST: {{ figure['strength'] }}, DX:{{ figure['dexterity'] }}
+        </p>
         <a class="action" href="{{ url_for('figure.update', id=figure['id']) }}">Edit</a>
+        <hr>
       {% endif %}
-      <p id="{{ figure['figure_name'] }}">
-        <b>STRENGTH: {{ figure['strength'] }}, DX:{{ figure['dexterity'] }}</b>
-      </p>
-      <hr>
     {% endfor %}
   </div>
   <div>
-    <h2>Welcome to the Lobby</h2>
+    <h4>Welcome to the Lobby</h4>
     <hr>
     <textarea name="status" id="status" cols="40" rows="20"></textarea>
   </div>
   <div id="otherUsers">
-    <h2> Users</h2>
+    <h3> Users</h3>
     <hr>
     {% for user in users %}
       {% if g.user['id'] != user['id'] %}
@@ -34,14 +33,14 @@
     {% endfor %}
   </div>
   <div id="gameList">
-    <h2>Games</h2>
+    <h3>Games</h3>
     {% if g.user %}
       <form id='new_game' action="{{ url_for('game.create') }}" method="post">
         <button type="submit" name="creator" value="{{ g.user['username'] }}">Create Game</button>
       </form>
     {% endif %}
     {% if g.user %}
-      <ul>
+      <ul id="gamesList">
         {% for game in games %}
           <li><b>Game {{ game['id'] }}</b>
           <a class="action" href="{{ url_for('game.join', game_id=game['id'], user_id=g.user['id']) }}">Join</a>
@@ -56,5 +55,12 @@
     {% endif %}
   </div>  
 </div>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.js"></script>
+  <script type="text/javascript">
+   var refreshGames = '{{ refreshGames }}'
+   var games = '{{ games|tojson }}'
+   var thisUser = '{{ thisUser|tojson|safe }}'
+  </script>
+  <script type="text/javascript" src="/static/js/lobby.js"></script>
 </body>
 {% endblock content%}

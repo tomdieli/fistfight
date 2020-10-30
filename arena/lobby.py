@@ -4,7 +4,7 @@ import json
 import psycopg2.extras
 
 from flask import (
-    Blueprint, redirect, render_template, request,
+    Blueprint, g, redirect, render_template, request,
     url_for, session, current_app
 )
 from werkzeug.exceptions import abort
@@ -27,4 +27,11 @@ def index():
         games = json.loads(dbase.get_games())
     if request.method == 'POST':
         refresh_games = True
-    return render_template('game/index.html', users=users, figures=figures, games=games, refresh_games=False)
+    print("REFRESH: %s" % refresh_games)
+    print("USER: %s" % g.user)
+    this_user = {
+        'username': g.user['username'],
+        'id': g.user['id']
+    }
+    return render_template('game/index.html', users=users, figures=figures,
+                            games=games, refreshGames=refresh_games, thisUser=this_user)

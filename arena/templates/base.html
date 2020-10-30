@@ -2,6 +2,7 @@
 <head>
   <title>{% block title %}{% endblock %} - Fistfight!</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <nav>
   <h1>Fistfight! - {% block header %}{% endblock %}</h1>
@@ -12,6 +13,7 @@
           Logged in as <b>{{ g.user['username'] }}</b>
           <br>
           <a href="{{ url_for('auth.logout') }}">Log Out</a>
+          <a href="{{ url_for('lobby.index') }}">Lobby</a>
         </p>
       </div>
       

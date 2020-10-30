@@ -9,7 +9,6 @@ def get_db():
     if 'db' not in g:
         g.db = psycopg2.connect(current_app.config['DATABASE_URL'])
         g.db.set_session(autocommit=True)
-        # dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     return g.db
 
 
@@ -45,15 +44,6 @@ def init_db_command():
     click.echo('Initialized the database.')
 
 
-# @click.command('init-game-db')
-# @with_appcontext
-# def init_game_db_command():
-#     """Clear the existing data and create new tables."""
-#     init_game()
-#     click.echo('Initialized the game table.')
-
-
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
-    # app.cli.add_command(init_game_db_command)
