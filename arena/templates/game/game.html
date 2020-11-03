@@ -1,49 +1,38 @@
-<!-- templates/index.html -->
-<!DOCTYPE html>
-<head>
-  <title>Fist Fight!</title>
-  <link href="/static/styles.css" rel="stylesheet" media="screen">
-</head>
+{% extends 'base.html' %}
+{% block title %}Game{% endblock %}
+{% block header %}Game{% endblock %}
+{% block content %}
 <body>
-  <h1>Welcome to the Fistfight!</h1>
-  <div class="flex-container">
-    <div>
-      <h2> You are:</h2>
-      <form id="input-form" class="form-inline">
-        <div>
-          <b>
-            <p id="player1">{{ figure.figure_name }}</p>
-            <p>ST: {{ figure.strength }} DX: {{ figure.dexterity }}</p>
-            <p id="player1_hits">Hits Remaining: {{ figure.strength }}</p>
-          </b>
-        </div>
-        <select name="opponent" id="opponent" width="300px" aria-placeholder="Select someone to punch">
-          {% for x in figures %}
-            {% if x.figure_name != figure.figure_name %}
-              <option value="{{ x.figure_name }}"{% if loop.first %} SELECTED{% endif %}>{{ x.figure_name }}</option>
-            {% endif %}
-          {% endfor %}
-        </select>
-        <button id="punch_button" type="submit">Throw the Fist Punch</button>
-      </form>
-    </div>
-    <div>
-      <h2>Game Status</h2>
-      <textarea name="status" id="status" cols="40" rows="20"></textarea>
-    </div>
-    <div>
-      <h2> The Other Players:</h2>
-      {% for y in figures %}
-        {% if y.figure_name != figure.figure_name %}
-          <b>
-          <p id="{{ y.figure_name }}">{{ y.figure_name }} ST: {{ y.strength }} DX: {{ y.dexterity }}</p>
-          <p id="{{ y.figure_name }}_hits">Hits Remaining: {{ y.strength }}</p>
-          </b>
-        {% endif %}  
-      {% endfor %}
-    </div>
+  <div>
+    <h3 id="player1">{{ figure.figure_name }}</h3>
+    <b>
+      <p>ST: {{ figure.strength }} DX: {{ figure.dexterity }}</p>
+      <p id="player1_hits">Hits Remaining: {{ figure.strength }}</p>
+    </b>
+    <form id="input-form" class="form-inline">
+      <select name="opponent" id="opponent" width="300px" aria-placeholder="Select someone to punch">
+        {% for x in figures %}
+          {% if x.figure_name != figure.figure_name %}
+            <option value="{{ x.figure_name }}"{% if loop.first %} SELECTED{% endif %}>{{ x.figure_name }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <button id="punch_button" type="submit">Throw the Fist Punch</button>
+    </form>
   </div>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.js"></script>
+  <div>
+    <h2>Game Status</h2>
+    <textarea name="status" id="status" cols="40" rows="20"></textarea>
+  </div>
+  <div>
+    <h2> The Other Players:</h2>
+    {% for y in figures %}
+      {% if y.figure_name != figure.figure_name %}
+        <p id="{{ y.figure_name }}">{{ y.figure_name }} ST: {{ y.strength }} DX: {{ y.dexterity }}</p>
+        <p id="{{ y.figure_name }}_hits">Hits Remaining: {{ y.strength }}</p>
+      {% endif %}  
+    {% endfor %}
+  </div>
   <script type="text/javascript">
    var game_id = '{{ game_id }}'
    var figures = '{{ figures|tojson }}'
@@ -51,4 +40,4 @@
   </script>
   <script type="text/javascript" src="/static/js/game.js"></script>
 </body>
-
+{% endblock content%}

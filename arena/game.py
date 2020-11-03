@@ -11,6 +11,7 @@ from werkzeug.exceptions import abort
 
 from arena.auth import login_required
 from arena.database import DatabaseServices
+from arena.game_utils import punch
 
 
 bp = Blueprint('game', __name__, url_prefix='/game')
@@ -54,21 +55,3 @@ def play(game_id):
         figures = json.loads(dbase.get_figures_by_game_id(game_id))
     return render_template('game/game.html', figures=figures,
                             figure=figure, game_id=game_id)
-
-
-def punch(attack_name, defend_name):
-    with DatabaseServices() as dbase:
-        attacker = json.loads(dbase.get_figure_by_name(attack_name))[0]
-        defender = json.loads(dbase.get_figure_by_name(defend_name))[0]
-    rolls = [random.randrange(1, 7) for i in range(0,3)]
-    roll_total = sum(rolls)
-    if roll_total > attacker["dexterity"]:
-        damage = 0
-        message = "%s attacks %s but misses with a roll of %s %s" %\
-            (attacker["figure_name"], defender["figure_name"], roll_total, rolls)
-    else:
-        damage = random.randrange(1, 7)
-        message = "%s attacks %s and hits with a roll of %s %s. Doing %s damage." %\
-            (attacker["figure_name"], defender["figure_name"], roll_total, rolls, damage)
-
-    return { "message": message, "damage": damage }

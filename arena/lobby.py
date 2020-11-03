@@ -27,8 +27,6 @@ def index():
         games = json.loads(dbase.get_games())
     if request.method == 'POST':
         refresh_games = True
-    print("REFRESH: %s" % refresh_games)
-    print("USER: %s" % g.user)
     this_user = {
         'username': g.user['username'],
         'id': g.user['id']

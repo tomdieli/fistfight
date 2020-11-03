@@ -8,23 +8,20 @@ if (window.location.protocol == "https:") {
 var game = JSON.parse(game)
 var my_figure = null
 
-var inbox = new ReconnectingWebSocket(ws_scheme + location.host + "/game" + game.id + "/receive");
-var outbox = new ReconnectingWebSocket(ws_scheme + location.host + "/game" + game.id + "/submit");
+var inbox = new WebSocket(ws_scheme + location.host + "/game" + game.id + "/receive");
+var outbox = new WebSocket(ws_scheme + location.host + "/game" + game.id + "/submit");
 
 inbox.onmessage = function(message) {
-  // console.log("inbox.onmessage hit")
   my_data_promise = message.data.text()
   my_data_promise.then( value => {
     my_data = JSON.parse(value)
     if (my_data["action"] === "join-game") {
-      console.log("Fighter " + my_data['figure_name'] + " has joined game " + game['id'])
       // we get the updated player list from the dealer
       players = my_data['players']
       // refresh other players list
       playerList = document.getElementById("playerList")
       playerList.innerHTML = "<ul>"
       for(player of JSON.parse(players)){
-        console.log(player)
         var newNode = document.createElement('li');      
         newNode.innerHTML = player.figure_name;
         newNode.innerHTML += "<br>ST: " + player.strength;
@@ -36,30 +33,26 @@ inbox.onmessage = function(message) {
         my_figure = my_data['figure_name']
         document.querySelector("#ready-button").disabled = true
         // if creator, show button
-        // console.log("Comparing " + user + " and " + game_owner)
         if (user === game_owner) { 
-          // unhide start button
           document.getElementById("start-game").disabled = false
         }
       }
-      msg = my_data['figure_name'] + 'has joined the arena!'
+      msg = my_data['figure_name'] + ' has joined the arena!'
       document.querySelector("#status").textContent += msg + "\n"
       document.getElementById("status").scrollTop = document.getElementById("status").scrollHeight
       // if start,then redirect. TODO: should be POT req?
     } else if (my_data["action"] === "start-game"){
-      window.location.href = '/game/play/' + game.id + '?figure=' + my_figure; //relative to domain
+      window.location.href = '/game/play/' + game.id + '?figure=' + my_figure;
     }
   })
 };
 
 inbox.onclose = function() {
-  console.log('inbox Socket is closed. Reconnect will be attempted.');
-  this.inbox = new ReconnectingWebSocket(inbox.url);
+  console.log('inbox is closed.');
 };
 
 outbox.onclose = function() {
-  console.log('outbox Socket is closed. Reconnect will be attempted.');
-  this.outbox = new ReconnectingWebSocket(outbox.url);
+  console.log('outbox is closed.');
 };
 
 document.querySelector("#join-form").addEventListener("submit", function(event) {
@@ -77,7 +70,6 @@ document.querySelector("#join-form").addEventListener("submit", function(event) 
 
 document.querySelector("#start-game").addEventListener("click", function(event) {
   event.preventDefault();
-  // console.log("someone hit the START game button")
   selection  = document.querySelector("#figure").value;
   start_game = {
     "action": "start-game",

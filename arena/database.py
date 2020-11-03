@@ -22,8 +22,6 @@ class Database:
         if self.conn is None:
             self.conn = psycopg2.connect(self.database_url)
             self.conn.set_session(autocommit=True)
-        # if 'db' not in g:
-        #     g.db = self.conn
             
 
     def select_rows(self, query, qargs=None):
@@ -65,7 +63,7 @@ class DatabaseServices:
         self.database = Database()
 
     def __enter__ (self):
-        # Code to start a new transaction
+        # Start a new transaction
         self.database.connect()
         if 'db' not in g:
             g.db = self.database.conn
@@ -146,9 +144,7 @@ class DatabaseServices:
         )
         qargs = (user_id,)
         r = self.database.select_rows(query, qargs)
-        print(r)
-        print(type(r))
-        return r    #self.database.select_rows(query, qargs)
+        return r
 
     def add_game(self, creator):
         query = (
@@ -193,7 +189,5 @@ class DatabaseServices:
             ' AND %s <> ALL (players);'
         )
         qargs = (figure_name, game_id, figure_name)
-        print("QUERY: %s" % query)
-        print("QARGS: %s, %s, %s" % qargs)
         return self.database.update_rows(query, qargs)
     

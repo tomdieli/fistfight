@@ -5,9 +5,6 @@ if (window.location.protocol == "https:") {
   var ws_scheme = "ws://"
 };
 
-// var inbox = new ReconnectingWebSocket(ws_scheme + location.host + "/lobby/receive");
-// var outbox = new ReconnectingWebSocket(ws_scheme + location.host + "/lobby/submit");
-
 var inbox = new WebSocket(ws_scheme + location.host + "/lobby/receive");
 var outbox = new WebSocket(ws_scheme + location.host + "/lobby/submit");
 
@@ -18,7 +15,6 @@ inbox.onmessage = function(message) {
   my_data_promise = message.data.text()
   my_data_promise.then( value => {
     my_data = JSON.parse(value)
-    console.log(my_data)
     if(my_data["action"] === "join-lobby") {
       // TODO: change name of 'theDiv'
       theDiv = document.getElementById("otherUsers")
@@ -40,7 +36,6 @@ inbox.onmessage = function(message) {
       for(game of games) {
         var gameNode = document.createElement('h3')
         gameNode.innerHTML = 'Game ' + game.id + '<br>'
-        console.log("comparing " + thisUser.username + " to " + game.owner)
         if (thisUser.username == game.owner) {
           var deleteNode = document.createElement('form');
           deleteNode.setAttribute('action', '/game/' + game.id + '/delete')
@@ -69,37 +64,22 @@ inbox.onmessage = function(message) {
 
 inbox.onclose = function(){
     console.log('inbox closed');
-    // this.inbox = new ReconnectingWebSocket(inbox.url);
-    this.inbox = new WebSocket(inbox.url);
+    // this.inbox = new WebSocket(inbox.url);
 };
 
 outbox.onclose = function(){
     console.log('outbox closed');
-    // this.outbox = new ReconnectingWebSocket(outbox.url);
-    this.outbox = new WebSocket(outbox.url);
+    // this.outbox = new WebSocket(outbox.url);
 };
 
-window.setTimeout(doRefresh, 1000)
-
-function doRefresh() {
-  console.log("Refrsh: " + refreshGames)
+outbox.onopen = function() {
   if( refreshGames === "True" ){
     refresh_games = {
       "action": "refresh-games",
       "games": games
     }
-    console.log("attempting to send..." + refresh_games)
     outbox.send(JSON.stringify(refresh_games));
   }
   refreshGames = "False"
 }
 
-// document.addEventListener('readystatechange', (event) => {
-//   event.preventDefault();
-  // joinLobby = {
-  //   "action": "join-lobby",
-  // }
-  // outbox.send(JSON.stringify(joinLobby));
-
-
-//});

@@ -3,7 +3,7 @@
 {% block header %}Lobby{% endblock %}
 {% block content %}
   <div id="playerList">
-    <h2>{{ g.user['username'] }}</h2>
+    <h2>{{ g.user['username'] }}'s figures</h2>
     <a class="action" href="{{ url_for('figure.create') }}">New Figure</a>
     <hr>
     {% for figure in figures %}
@@ -19,15 +19,14 @@
   </div>
   <div>
     <h4>Welcome to the Lobby</h4>
-    <hr>
     <textarea name="status" id="status" cols="40" rows="20"></textarea>
   </div>
   <div id="otherUsers">
-    <h3> Users</h3>
+    <h3> Other Users</h3>
     <hr>
     {% for user in users %}
       {% if g.user['id'] != user['id'] %}
-        <h2>{{ user['username'] }}</h2>
+        <b>{{ user['username'] }}</b>
         <hr>
       {% endif %}
     {% endfor %}
@@ -48,19 +47,18 @@
             <form action="{{ url_for('game.delete', game_id=game['id']) }}" method="post">
               <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
             </form>
-          {% endif %} -->
+          {% endif %}
           </li>
         {% endfor %}
       </ul>
     {% endif %}
   </div>  
 </div>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.js"></script>
-  <script type="text/javascript">
+<script type="text/javascript">
    var refreshGames = '{{ refreshGames }}'
    var games = '{{ games|tojson }}'
    var thisUser = '{{ thisUser|tojson|safe }}'
-  </script>
-  <script type="text/javascript" src="/static/js/lobby.js"></script>
+</script>
+<script type="text/javascript" src="/static/js/lobby.js"></script>
 </body>
 {% endblock content%}
