@@ -5,7 +5,7 @@ from psycopg2.extras import DictCursor, RealDictCursor, RealDictRow
 
 from flask import current_app, g
 
-DATABASE_URL="postgresql://tom:k1k1Dee@localhost/arena"
+DATABASE_URL=current_app.config['DATABASE_URL']
 
 def datetime_converter(o):
         if isinstance(o, datetime.datetime):

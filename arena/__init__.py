@@ -1,11 +1,12 @@
-import os
 import logging
 import json
+from os import environ
 
 from flask import Flask
 from flask_sockets import Sockets
 
-DATABASE_URL = os.environ['DATABASE_URL']
+
+DATABASE_URL = environ.get('DATABASE_URL')
 
 logging.basicConfig(level=logging.INFO)
 
