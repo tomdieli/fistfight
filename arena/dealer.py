@@ -32,7 +32,6 @@ def inbox(ws, room_name):
         message = ws.receive()
         if message:
             data = json.loads(message)
-            # TODO: extract these
             if data['action'] == "punch":
                 punch_result = punch(data["attacker"], data["attackee"])
                 data['result_message'] = punch_result["message"]
@@ -84,7 +83,6 @@ class Dealer(object):
         for message in self.pubsub.listen():
             data = message.get('data')
             if message['type'] == 'message':
-                # print(u'Sending message: {}'.format(data))
                 yield data
 
     def register(self, client):
@@ -100,7 +98,6 @@ class Dealer(object):
         except Exception as e:
             print("Ditching client %s. %s." % (client, e))
             self.clients.remove(client)
-            # raise
 
     def run(self):
         """Listens for new messages in Redis, and sends them to clients."""
