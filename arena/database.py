@@ -3,70 +3,56 @@ import json
 import datetime
 from psycopg2.extras import DictCursor, RealDictCursor, RealDictRow
 
+import click
 from flask import current_app, g
+from flask.cli import with_appcontext
 
-DATABASE_URL=current_app.config['DATABASE_URL']
+from .db import get_db
+
 
 def datetime_converter(o):
         if isinstance(o, datetime.datetime):
             return o.__str__()
 
-class Database:
-    """Generic interface to PostgreSQL Database."""
 
-    def __init__(self, db_url=DATABASE_URL):
-        self.database_url = db_url
-        self.conn = None
+def select_rows(db_conn, query, qargs=None):
+    """Run a SQL query to select rows from table."""
+    cursor = db_conn.cursor(cursor_factory=RealDictCursor)
+    cursor.execute(query, qargs)
+    return json.dumps(cursor.fetchall(), default=datetime_converter)
 
-    def connect(self):
-        if self.conn is None:
-            self.conn = psycopg2.connect(self.database_url)
-            self.conn.set_session(autocommit=True)
-            
 
-    def select_rows(self, query, qargs=None):
-        """Run a SQL query to select rows from table."""
-        self.connect()
-        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(query, qargs)
-            return json.dumps(cur.fetchall(), default=datetime_converter)
-    
-    def update_rows(self, query, qargs):
-        """Run a SQL query to update rows in table."""
-        self.connect()
-        with self.conn.cursor() as cur:
-            cur.execute(query, qargs)
-            self.conn.commit()
-            return f"{cur.rowcount} rows updated."
+def update_rows(db_conn, query, qargs):
+    """Run a SQL query to update rows in table."""
+    cursor = db_conn.cursor()
+    cursor.execute(query, qargs)
+    db_conn.commit()
+    return f"{cursor.rowcount} rows updated."
 
-    def insert_rows(self, query, qargs):
-        """Run a SQL query to update rows in table."""
-        self.connect()
-        with self.conn.cursor() as cur:
-            cur.execute(query, qargs)
-            self.conn.commit()
-            return f"{cur.rowcount} rows inserted."
 
-    def delete_rows(self, query, qargs):
-        """Run a SQL query to update rows in table."""
-        self.connect()
-        with self.conn.cursor() as cur:
-            cur.execute(query, qargs)
-            self.conn.commit()
-            return f"{cur.rowcount} rows deleted."
+def insert_rows(db_conn, query, qargs):
+    """Run a SQL query to update rows in table."""
+    cursor = db_conn.cursor()
+    cursor.execute(query, qargs)
+    db_conn.commit()
+    return f"{cursor.rowcount} rows inserted."
+
+
+def delete_rows(db_conn, query, qargs):
+    """Run a SQL query to update rows in table."""
+    cursor = db_conn.cursor()
+    cursor.execute(query, qargs)
+    db_conn.commit()
+    return f"{cursor.rowcount} rows deleted."
 
 
 class DatabaseServices:
     """Fistfight-specific database services."""
 
     def __init__(self):
-        self.database = Database()
+        self.database = get_db()
 
     def __enter__ (self):
-        # Start a new transaction
-        self.database.connect()
-        if 'db' not in g:
-            g.db = self.database.conn
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
@@ -74,30 +60,26 @@ class DatabaseServices:
             print(f'exc_type: {exc_type}')
             print(f'exc_value: {exc_value}')
             print(f'exc_traceback: {exc_traceback}')
-            self.database.conn.rollback()
-
-        db = g.pop('db', None)
-        if db is not None:
-            db.close()
+            self.database.rollback()
     
     def get_users(self):
         query = 'SELECT * FROM game_user'
-        return self.database.select_rows(query)
+        return select_rows(self.database, query)
 
     def get_figures(self):
         query = 'SELECT * FROM figure'
-        return self.database.select_rows(query)
+        return select_rows(self.database, query)
 
     def get_games(self):
         query = 'SELECT * FROM game'
-        return self.database.select_rows(query)
+        return select_rows(self.database, query)
 
     def add_figure(self, name, st, dx, uid):
         query=\
         r'INSERT INTO figure (figure_name, strength, dexterity, user_id)'\
         r' VALUES (%s, %s, %s, %s)'
         qargs = (name, st, dx, uid)
-        return self.database.insert_rows(query, qargs)
+        return insert_rows(self.database, query, qargs)
 
     def update_figure(self, figure_name, strength, dexterity, id):
         query=\
@@ -105,12 +87,12 @@ class DatabaseServices:
         r' SET figure_name = (%s), strength = (%s), dexterity = (%s)'\
         r' WHERE id = (%s)'
         qargs = (figure_name, strength, dexterity, id)
-        return self.database.update_rows(query, qargs)
+        return update_rows(self.database, query, qargs)
 
     def delete_figure(self, id):
         query = r'DELETE FROM figure WHERE id = (%s)'
         qargs = (id,)
-        return self.database.delete_rows(query, qargs)
+        return delete_rows(self.database, query, qargs)
 
     def get_figures_by_user(self, user_id):
         query=\
@@ -118,7 +100,7 @@ class DatabaseServices:
         r' FROM figure p JOIN game_user u ON p.user_id = u.id'\
         r' WHERE u.id = (%s)'
         qargs = (user_id,)
-        return self.database.select_rows(query, qargs)
+        return select_rows(self.database, query, qargs)
 
     def get_figure_by_name(self, figure_name):
         query =\
@@ -126,7 +108,7 @@ class DatabaseServices:
             r' FROM figure p'\
             r' WHERE p.figure_name = (%s)'
         qargs = (figure_name,)
-        return self.database.select_rows(query, qargs)
+        return select_rows(self.database, query, qargs)
 
     def get_figure_by_id(self, id):
         query =\
@@ -134,7 +116,7 @@ class DatabaseServices:
             r' FROM figure p'\
             r' WHERE p.id = (%s)'
         qargs = (id,)
-        return self.database.select_rows(query, qargs)
+        return select_rows(self.database, query, qargs)
 
     def get_user_by_id(self, user_id):
         query = (
@@ -143,8 +125,7 @@ class DatabaseServices:
             r' WHERE u.id = (%s)'
         )
         qargs = (user_id,)
-        r = self.database.select_rows(query, qargs)
-        return r
+        return select_rows(self.database, query, qargs)
 
     def add_game(self, creator):
         query = (
@@ -152,22 +133,22 @@ class DatabaseServices:
             r' VALUES (%s)'
         )
         qargs = (creator,)
-        return self.database.insert_rows(query, qargs)
+        return insert_rows(self.database, query, qargs)
 
     def delete_game(self, game_id):
         query = r'DELETE FROM game WHERE id = (%s)'
         qargs = (game_id,)
-        return self.database.delete_rows(query, qargs)
+        return delete_rows(self.database, query, qargs)
 
     def get_username_from_id(self, user_id):
         query = r'SELECT username FROM game_user WHERE id = (%s)'
         qargs = (user_id,)
-        return self.database.select_rows(query, qargs)
+        return select_rows(self.database, query, qargs)
         
     def get_game_by_id(self, game_id):
         query = r'SELECT id, owner FROM game WHERE id = (%s)'
         qargs = (game_id,)
-        return self.database.select_rows(query, qargs)
+        return select_rows(self.database, query, qargs)
 
     def get_figures_by_game_id(self, game_id):
         query = (
@@ -179,7 +160,7 @@ class DatabaseServices:
             ' ORDER BY f.dexterity DESC;'
         )
         qargs = (game_id,)
-        return self.database.select_rows(query, qargs)
+        return select_rows(self.database, query, qargs)
 
     def add_figure_to_game(self, figure_name, game_id):
         query = (
@@ -189,5 +170,5 @@ class DatabaseServices:
             ' AND %s <> ALL (players);'
         )
         qargs = (figure_name, game_id, figure_name)
-        return self.database.update_rows(query, qargs)
+        return update_rows(self.database, query, qargs)
     

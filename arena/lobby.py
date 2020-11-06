@@ -11,7 +11,6 @@ from werkzeug.exceptions import abort
 
 from arena.auth import login_required
 from arena.db import get_db
-# from arena.database import Database
 from arena.database import DatabaseServices
 
 bp = Blueprint('lobby', __name__)
