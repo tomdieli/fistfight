@@ -40,16 +40,16 @@
     {% endif %}
     {% if g.user %}
       <ul id="gamesList">
-        {% for game in games %}
-          <li><b>Game {{ game['id'] }}</b>
-          <a class="action" href="{{ url_for('game.join', game_id=game['id'], user_id=g.user['id']) }}">Join</a>
-          {% if game['owner'] == g.user['username'] %}
-            <form action="{{ url_for('game.delete', game_id=game['id']) }}" method="post">
-              <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
-            </form>
-          {% endif %}
-          </li>
-        {% endfor %}
+      {% for game in games %}
+        <li><b>Game {{ game['id'] }}</b>
+        <a class="action" href="{{ url_for('game.join', game_id=game['id'], user_id=g.user['id']) }}">Join</a>
+        {% if game['owner'] == g.user['username'] %}
+          <form action="{{ url_for('game.delete', game_id=game['id']) }}" method="post">
+            <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+          </form>
+        {% endif %}
+        </li>
+      {% endfor %}
       </ul>
     {% endif %}
   </div>  
