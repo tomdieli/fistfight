@@ -97,7 +97,8 @@ class Dealer(object):
             client.send(data)
         except Exception as e:
             print("Ditching client %s. %s." % (client, e))
-            self.clients.remove(client)
+            # self.clients.remove(client)
+            raise
 
     def run(self):
         """Listens for new messages in Redis, and sends them to clients."""

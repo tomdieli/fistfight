@@ -9,8 +9,8 @@ var players = JSON.parse(figures)
 var player = JSON.parse(figure)
 var nextPlayer = null
 
-var inbox = new WebSocket(ws_scheme + location.host + "/game" + game_id + "/receive");
-var outbox = new WebSocket(ws_scheme + location.host  + "/game" + game_id + "/submit");
+var inbox = new ReconnectingWebSocket(ws_scheme + location.host + "/game" + game_id + "/receive");
+var outbox = new ReconnectingWebSocket(ws_scheme + location.host  + "/game" + game_id + "/submit");
 
 const getNextPlayer = function() {
   nextPlayer = players.shift()
