@@ -1,1 +1,1 @@
-web: gunicorn -k flask_sockets.worker 'arena:create_app()'
+web: gunicorn -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker -w 1 'arena:create_app()'
