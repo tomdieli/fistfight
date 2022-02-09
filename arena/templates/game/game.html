@@ -4,11 +4,12 @@
 {% block content %}
 <body>
   <div>
-    <h3 id="player1">{{ figure.figure_name }}</h3>
+    <h3 id="{{figure.figure_name}}">{{ figure.figure_name }}</h3>
     <b>
       <p>ST: {{ figure.strength }} DX: {{ figure.dexterity }}</p>
-      <p id="player1_hits">Hits Remaining: {{ figure.strength }}</p>
+      <p id="{{figure.figure_name}}_hits">Hits Remaining: {{ figure.strength }}</p>
     </b>
+    <div id='actions'>
     <form id="input-form" class="form-inline">
       <select name="opponent" id="opponent" width="300px" aria-placeholder="Select someone to punch">
         {% for x in figures %}
@@ -19,6 +20,7 @@
       </select>
       <button id="punch_button" type="submit">Throw the Fist Punch</button>
     </form>
+    </div>
   </div>
   <div>
     <h2>Game Status</h2>
@@ -38,6 +40,7 @@
    var figures = '{{ figures|tojson }}'
    var figure = '{{ figure|tojson }}'
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
   <script type="text/javascript" src="/static/js/game.js"></script>
 </body>
 {% endblock content%}

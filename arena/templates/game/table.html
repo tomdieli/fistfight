@@ -20,20 +20,16 @@
     <textarea name="status" id="status" cols="40" rows="20"></textarea>
   </div>
   <div id="otherPlayers">
-    <h3>The Players</h3>
-    <p id="playerList">
-      <ul>
-        {% for x in other_players %}
-          <li>{{ x.figure_name }}</li>
-        {% endfor %}
-      </ul>
-    </p>
+    <h3>The Opponents</h3>
+    <div id="playerList">
+    </div>
   </div>
   <script type="text/javascript">
     var user = '{{ user }}';
     var game = '{{ game|tojson }}';
     var game_owner = '{{ game_owner }}';
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
   <script type="text/javascript" src="/static/js/table.js" defer></script>
 </body>
 {% endblock content%}
