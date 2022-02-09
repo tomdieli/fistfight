@@ -1,85 +1,75 @@
-// Support TLS-specific URLs, when appropriate.
-if (window.location.protocol == "https:") {
-  var ws_scheme = "wss://";
-} else {
-  var ws_scheme = "ws://"
-};
+var thisUser = JSON.parse(thisUser);
+var games = JSON.parse(games);
+var users = JSON.parse(users);
 
-var inbox = new WebSocket(ws_scheme + location.host + "/lobby/receive");
-var outbox = new WebSocket(ws_scheme + location.host + "/lobby/submit");
+socket = io.connect('http://' + document.domain + ':' + location.port + '/lobby');
 
-var thisUser = JSON.parse(thisUser)
-var refreshGames = refreshGames
+document.querySelector("#new_game").addEventListener("click", function(event) {
+  event.preventDefault();
+  socket.emit('create', thisUser);
+});
 
-inbox.onmessage = function(message) {
-  my_data_promise = message.data.text()
-  my_data_promise.then( value => {
-    my_data = JSON.parse(value)
-    if(my_data["action"] === "join-lobby") {
-      // TODO: change name of 'theDiv'
-      theDiv = document.getElementById("otherUsers")
-      theDiv.innerHTML = ""
-      for(user of users){
-        var newNode = document.createElement('p');      
-        newNode.innerHTML = user.username;
-        theDiv.appendChild( newNode );
-      }
-      msg = '%s has joined the lobby' + user.username
-      document.querySelector("#status").textContent += msg + "\n"
-      document.getElementById("status").scrollTop = document.getElementById("status").scrollHeight
-    }
-    else if(my_data["action"] === "refresh-games") {
-      // we get the updated game list from the dealer
-      games = JSON.parse(my_data['games'])
-      gamesList = document.getElementById("gamesList")
-      gamesList.innerHTML = ""
-      for(game of games) {
-        var gameNode = document.createElement('h3')
-        gameNode.innerHTML = 'Game ' + game.id + '<br>'
-        if (thisUser.username == game.owner) {
-          var deleteNode = document.createElement('form');
-          deleteNode.setAttribute('action', '/game/' + game.id + '/delete')
-          deleteNode.setAttribute('method', 'post')
-          var deleteButton = document.createElement('input')
-          deleteButton.setAttribute('type', 'submit')
-          deleteButton.setAttribute('name', 'delete')
-          deleteButton.setAttribute('value', 'Delete')
-          deleteNode.appendChild(deleteButton)
-          gameNode.appendChild(deleteNode)
-        }
-        var joinNode = document.createElement('form')
-          joinNode.setAttribute('action', '/game/' + game.id + '/join/' + thisUser.id)
-          joinNode.setAttribute('method', 'post')
-          var joinButton = document.createElement('input')
-          joinButton.setAttribute('type', 'submit')
-          joinButton.setAttribute('name', 'join')
-          joinButton.setAttribute('value', 'Join')
-          joinNode.appendChild(joinButton)
-          gameNode.appendChild(joinNode)
-        gamesList.appendChild( gameNode )
-      }
-    }
-  })
-};
+socket.on('connect', function() {
+  socket.emit('joined', thisUser.username);
+});
 
-inbox.onclose = function(){
-    console.log('inbox closed');
-    // this.inbox = new WebSocket(inbox.url);
-};
+socket.on('joined', function(message) {
+  announce(message.msg);
+  refreshUsers(JSON.parse(message.users), thisUser);
+  refreshGames(games);
+});
 
-outbox.onclose = function(){
-    console.log('outbox closed');
-    // this.outbox = new WebSocket(outbox.url);
-};
+socket.on('create', function(message) {
+  const newGames = JSON.parse(message.games);
+  announce(message.msg);
+  refreshGames(newGames);
+});
 
-outbox.onopen = function() {
-  if( refreshGames === "True" ){
-    refresh_games = {
-      "action": "refresh-games",
-      "games": games
-    }
-    outbox.send(JSON.stringify(refresh_games));
+socket.on('delete', function(message) {
+  const newGames = JSON.parse(message.games);
+  announce(message.msg);
+  refreshGames(newGames);
+});
+
+function refreshUsers(updatedUsers) {
+  theDiv = document.getElementById("otherUsers")
+  theDiv.innerHTML = "Users:<p>"
+  for(var user of updatedUsers){
+    var newNode = document.createElement('p');   
+    newNode.innerHTML = user.username;
+    theDiv.appendChild( newNode );
   }
-  refreshGames = "False"
 }
 
+function refreshGames(updated_games) {
+  gamesList = document.getElementById("gamesList")
+  gamesList.innerHTML = ""
+  for(var game of updated_games) {
+    const gameNode = document.createElement('p')
+    const textNode = document.createTextNode('Game ' + game.id);
+    gameNode.appendChild(textNode);
+    if (thisUser.username == game.owner) {
+      deleteButton = document.createElement('button');
+      deleteButton.innerHTML = 'Delete';
+      deleteButton.onclick = function(event) {
+        event.preventDefault();
+        socket.emit('delete', {'game_id': game.id, 'user': thisUser.username});
+      }
+      gameNode.append(deleteButton);
+    }
+    const joinNode = document.createElement('form')
+    joinNode.setAttribute('action', '/' + game.id + '/join/' + thisUser.id)
+    joinNode.setAttribute('method', 'post')
+    joinNode.setAttribute('id', 'join' + game.id)
+    const joinButton = document.createElement('input')
+    joinButton.setAttribute('type', 'submit')
+    joinNode.appendChild(joinButton)
+    gameNode.append(joinNode);
+    gamesList.appendChild(gameNode)
+  }
+}
+
+function announce(sentence) {
+  document.querySelector("#status").textContent += sentence + "\n"
+  document.getElementById("status").scrollTop = document.getElementById("status").scrollHeight
+}

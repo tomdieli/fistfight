@@ -1,93 +1,102 @@
-// Support TLS-specific URLs, when appropriate.
-if (window.location.protocol == "https:") {
-  var ws_scheme = "wss://";
-} else {
-  var ws_scheme = "ws://"
-};
-
 var players = JSON.parse(figures)
 var player = JSON.parse(figure)
+var game_id = JSON.parse(game_id)
 var nextPlayer = null
-
-var inbox = new ReconnectingWebSocket(ws_scheme + location.host + "/game" + game_id + "/receive");
-var outbox = new ReconnectingWebSocket(ws_scheme + location.host  + "/game" + game_id + "/submit");
-
-const getNextPlayer = function() {
-  nextPlayer = players.shift()
-  players.push(nextPlayer)
-  var punchButton = document.querySelector("#punch_button")
-  if( players.length === 1 ){
-    punchButton.disabled = true
-    punchButton.textContent = `${nextPlayer.figure_name} wins!!!`
-    return null
-  } 
-  else if(player.id === nextPlayer.id) {
-    punchButton.disabled = false
-    punchButton.textContent = "Punch"
-  }
-  else {
-    punchButton.disabled = true
-    punchButton.textContent = `${nextPlayer.figure_name}'s turn`
-  }
-}
 
 window.onload = function() {
   getNextPlayer()
 };
 
-inbox.onmessage = function(message) {
-  my_data_promise = message.data.text()
-  my_data_promise.then( value => {
-    my_data = JSON.parse(value)
-    if (parseInt(my_data.damage) !== 0) {
-      player_hits = document.querySelector("#" + my_data.attackee + "_hits")
-      if (player_hits === null) {
-        player_hits = document.querySelector("#player1_hits")
-      }
-      player_stat = player_hits.textContent
-      digit = parseInt(player_stat.match(/: \d+/g)[0].split(' ')[1]);
-      digit -= my_data.damage
-      if ( digit <= 0){
-        new_val = "DEAD"
-        for(i=0; i < players.length; ++i){
-          if(players[i]['figure_name'] === my_data.attackee){
-            players.splice(i, 1)
-          }
-        }
-        var selectobject = document.getElementById("opponent");
-        for (var i=0; i<selectobject.length; i++) {
-          if (selectobject.options[i].value === my_data.attackee) {
-            selectobject.remove(i);
-          }
-        }
-      } else {
-        new_val = `Hits Remaining: ${digit}`
-      }
-      player_hits.textContent = new_val
-    }
-    document.querySelector("#status").textContent += my_data.result_message + "\n"
-    document.getElementById("status").scrollTop = document.getElementById("status").scrollHeight
-    getNextPlayer()
-  })
-};
+socket = io.connect('http://' + document.domain + ':' + location.port + '/arena');
 
-inbox.onclose = function(){
-    console.log('inbox closed');
-};
-
-outbox.onclose = function(){
-    console.log('outbox closed');
-};
-
-document.querySelector("#input-form").addEventListener("submit", function(event) {
-  event.preventDefault();
-  var attacker = document.querySelector("#player1").textContent;
-  var selection  = document.querySelector("#opponent").value;
-  punch = {
-    "action": "punch",
-    "attacker": attacker,
-    "attackee": selection
-  }
-  outbox.send(JSON.stringify(punch));
+socket.on('connect', function() {
+  socket.emit('starting', game_id);
 });
+
+socket.on('attack', function(message) {
+  console.log(message);
+  attackee = message.attackee
+  dmg = message.dmg
+  msg = message.msg
+  console.log(attackee + '_hits')
+  if(dmg !== 0) {
+    player_hits = document.getElementById(attackee + "_hits");
+    player_stat = player_hits.textContent;
+
+    digit = parseInt(player_stat.match(/: \d+/g)[0].split(' ')[1]);
+    digit -= dmg;
+    
+    if ( digit <= 0) {
+      new_val = "DEAD";
+      for(i=0; i < players.length; ++i){
+        if(players[i]['figure_name'] === attackee){
+          players.splice(i, 1);
+        }
+      }
+    }
+    else {
+      new_val = `Hits Remaining: ${digit}`;
+      player_hits.textContent = new_val;
+    }
+  }
+  announce(msg)
+  getNextPlayer()
+});
+
+function getNextPlayer() {
+  nextPlayer = players.shift()
+  players.push(nextPlayer)
+  var actions = document.getElementById('actions')
+  actions.innerHTML = ""
+  if( players.length === 1 ){
+    actions.textContent = `${nextPlayer.figure_name} wins!!!`
+    return null
+  }
+  else if(player.id === nextPlayer.id) {
+    attackButton = getAttackButton(players, player)
+    attackButton.addEventListener("submit", function(event) {
+      event.preventDefault();
+      var attacker = player.figure_name;
+      var selection  = document.querySelector("#opponent").value;
+      console.log(attacker, selection)
+      socket.emit('attack', attacker, selection, game_id)
+    });
+    actions.append(attackButton)
+  }
+  else {
+    actions.textContent = `${nextPlayer.figure_name}'s turn`
+  }
+}
+
+function getAttackButton(figures, userFigure) {
+  const attackNode = document.createElement('form');
+  attackNode.id = 'attack'
+  const selectNode = document.createElement('select')
+  selectNode.id = 'opponent'
+  for(var figure of figures) {
+      if(figure.figure_name != userFigure.figure_name) {
+          var option = document.createElement("option");
+          option.value = figure.figure_name;
+          option.text = figure.figure_name;
+          selectNode.appendChild(option)
+      }
+  }
+  // <button id="punch_button" type="submit">Throw the Fist Punch</button>
+  const attackButton = document.createElement('input')
+  attackButton.type = 'submit';
+  attackNode.appendChild(selectNode)
+  attackNode.appendChild(attackButton)
+  return attackNode
+}
+
+function announce(sentence) {
+  document.querySelector("#status").textContent += sentence + "\n"
+  document.getElementById("status").scrollTop = document.getElementById("status").scrollHeight
+}
+
+
+
+
+
+
 
