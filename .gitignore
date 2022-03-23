@@ -1,4 +1,6 @@
-venv/
+env/
+
+.ssh/
 
 *.pyc
 __pycache__/

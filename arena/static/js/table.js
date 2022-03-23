@@ -17,11 +17,9 @@ document.querySelector("#join-form").addEventListener("submit", function(event) 
   socket.emit('ready', game, selection)
 });
 
-console.log(game.owner, user);
 if(game.owner === user) {
   startButton = document.getElementById('start-game');
   startButton.disabled = false;
-  console.log(startButton);
   startButton.addEventListener("click", function(event) {
     console.log('start button hit')
     event.preventDefault();

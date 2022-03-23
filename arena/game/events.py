@@ -5,7 +5,7 @@ from flask_socketio import emit, join_room, leave_room
 
 from .. import socketio
 from ..database import DatabaseServices
-from arena.game_utils import punch
+from arena.game_utils import punch, attempt_pull
 
 
 @socketio.on('joined', namespace='/arena')
@@ -46,8 +46,16 @@ def start(game_id):
     print('started...')
     emit('start', url_for('game.play', game_id=game_id), room='game%s'%game_id)
 
+
 @socketio.on('attack', namespace='/arena')
 def attack(attacker, attackee, game_id):
     results = punch(attacker, attackee)
-    print(f'results: {results}')
     emit('attack', {'msg': results['message'], 'dmg': results['damage'], 'attackee': attackee}, room='game%s'%game_id)
+
+
+@socketio.on('pull-dagger', namespace='/arena')
+def pull_dagger(puller, game_id):
+    results = attempt_pull(puller)
+    print(f'results: {results}')
+    emit('pull-dagger', {'msg': results['message'], 'result': results['result'], 'puller': results['puller']}, room='game%s'%game_id)
+
