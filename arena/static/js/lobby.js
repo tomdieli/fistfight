@@ -49,21 +49,21 @@ function refreshGames(updated_games) {
     const textNode = document.createTextNode('Game ' + game.id);
     gameNode.appendChild(textNode);
     if (thisUser.username == game.owner) {
-      deleteButton = document.createElement('button');
-      deleteButton.innerHTML = 'Delete';
+      deleteButton = getDeleteGame();
       deleteButton.onclick = function(event) {
         event.preventDefault();
         socket.emit('delete', {'game_id': game.id, 'user': thisUser.username});
       }
       gameNode.append(deleteButton);
     }
-    const joinNode = document.createElement('form')
-    joinNode.setAttribute('action', '/' + game.id + '/join/' + thisUser.id)
-    joinNode.setAttribute('method', 'post')
-    joinNode.setAttribute('id', 'join' + game.id)
-    const joinButton = document.createElement('input')
-    joinButton.setAttribute('type', 'submit')
-    joinNode.appendChild(joinButton)
+    joinNode = getJoinButton(thisUser, game)
+    // const joinNode = document.createElement('form')
+    // joinNode.setAttribute('action', '/' + game.id + '/join/' + thisUser.id)
+    // joinNode.setAttribute('method', 'post')
+    // joinNode.setAttribute('id', 'join' + game.id)
+    // const joinButton = document.createElement('input')
+    // joinButton.setAttribute('type', 'submit')
+    // joinNode.appendChild(joinButton)
     gameNode.append(joinNode);
     gamesList.appendChild(gameNode)
   }

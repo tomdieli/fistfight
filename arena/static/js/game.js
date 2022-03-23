@@ -1,10 +1,12 @@
-var players = JSON.parse(figures)
-var player = JSON.parse(figure)
-var game_id = JSON.parse(game_id)
-var nextPlayer = null
+var players = JSON.parse(figures);
+var player = JSON.parse(figure);
+var game_id = JSON.parse(game_id);
+var nextPlayer = null;
+
+player.hasDagger = false;
 
 window.onload = function() {
-  getNextPlayer()
+  getNextPlayer();
 };
 
 socket = io.connect('http://' + document.domain + ':' + location.port + '/arena');
@@ -14,11 +16,9 @@ socket.on('connect', function() {
 });
 
 socket.on('attack', function(message) {
-  console.log(message);
-  attackee = message.attackee
-  dmg = message.dmg
-  msg = message.msg
-  console.log(attackee + '_hits')
+  attackee = message.attackee;
+  dmg = message.dmg;
+  msg = message.msg;
   if(dmg !== 0) {
     player_hits = document.getElementById(attackee + "_hits");
     player_stat = player_hits.textContent;
@@ -39,8 +39,19 @@ socket.on('attack', function(message) {
       player_hits.textContent = new_val;
     }
   }
-  announce(msg)
-  getNextPlayer()
+  announce(msg);
+  getNextPlayer();
+});
+
+socket.on('pull-dagger', function(message){
+  puller = message.puller;
+  result = message.result;
+  msg = message.msg;
+  if(player.figure_name === puller){
+    player.hasDagger = result;
+  }
+  announce(msg);
+  getNextPlayer();
 });
 
 function getNextPlayer() {
@@ -56,30 +67,42 @@ function getNextPlayer() {
     attackButton = getAttackButton(players, player)
     attackButton.addEventListener("submit", function(event) {
       event.preventDefault();
-      var attacker = player.figure_name;
+      var attacker = player;
       var selection  = document.querySelector("#opponent").value;
-      console.log(attacker, selection)
       socket.emit('attack', attacker, selection, game_id)
     });
     actions.append(attackButton)
+    if(player.hasDagger === false) {
+      daggerButton = document.createElement('button');
+      daggerButton.innerHTML = 'Pull Dagger'
+      daggerButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        var attacker = player.figure_name;
+        socket.emit('pull-dagger', attacker, game_id);
+      });
+      actions.append(daggerButton);
+    }
   }
   else {
-    actions.textContent = `${nextPlayer.figure_name}'s turn`
+    actions.textContent = `${nextPlayer.figure_name}'s turn`;
   }
 }
 
 function getAttackButton(figures, userFigure) {
   const attackNode = document.createElement('form');
-  attackNode.id = 'attack'
-  const selectNode = document.createElement('select')
-  selectNode.id = 'opponent'
+  attackNode.id = 'attack';
+  const selectNode = document.createElement('select');
+  selectNode.id = 'opponent';
   for(var figure of figures) {
-      if(figure.figure_name != userFigure.figure_name) {
-          var option = document.createElement("option");
-          option.value = figure.figure_name;
-          option.text = figure.figure_name;
-          selectNode.appendChild(option)
-      }
+    if(figure.figure_name != userFigure.figure_name) {
+        var option = document.createElement("option");
+        option.value = figure.figure_name;
+        option.text = figure.figure_name;
+        selectNode.appendChild(option);
+    } 
+  }
+  if(selectNode.length > 0){
+    selectNode.firstChild.selected = true;
   }
   // <button id="punch_button" type="submit">Throw the Fist Punch</button>
   const attackButton = document.createElement('input')

@@ -1,33 +1,30 @@
-from crypt import methods
+# from crypt import methods
 import logging
-import redis
+# import redis
 from os import environ
 
 from flask import Flask, url_for, render_template
 from flask_socketio import SocketIO
 
-DATABASE_URL = environ.get('DATABASE_URL')
-REDIS_URL = environ['REDIS_URL']
+from Config import Config
 
-redis = redis.from_url(REDIS_URL)
+DATABASE_URL = environ.get('DATABASE_URL')
+REDIS_URL = environ.get('REDIS_URL')
+
 socketio = SocketIO()
 
 logging.basicConfig(level=logging.INFO)
 
 
-def create_app(test_config=None):
+def create_app(config=None):
     app = Flask(__name__, instance_relative_config=False)
-    app.config.from_mapping(
-        SECRET_KEY = 'dev',
-        DATABASE_URL = DATABASE_URL,
-    )
 
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('config.py', silent=True)
+    if config is None:
+        # load the default config, when not testing
+        app.config.from_object(Config)
     else:
-        # load the test config if passed in
-        app.config.from_mapping(test_config)
+        # load the config if passed in
+        app.config.from_object(config)
 
     from . import db
     db.init_app(app)
