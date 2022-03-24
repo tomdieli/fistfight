@@ -20,4 +20,5 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
+    SECRET_KEY = 'notsosecret'
     DATABASE_URL = 'postgresql://postgres:mysecretpassword@localhost/test_arena'

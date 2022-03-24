@@ -39,7 +39,7 @@ def create_app(config=None):
     from .game import game as game_bp
     app.register_blueprint(game_bp)
 
-    socketio.init_app(app, message_queue=config['REDIS_URL'])
+    socketio.init_app(app, message_queue=app.config['REDIS_URL'])
 
     # print(list(app.url_map.iter_rules()))
 
