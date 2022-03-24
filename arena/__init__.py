@@ -19,10 +19,7 @@ logging.basicConfig(level=logging.INFO)
 def create_app(config=None):
     app = Flask(__name__, instance_relative_config=False)
 
-    if config is None:
-        # load the default config, when not testing
-        app.config.from_object(Config)
-    else:
+    if config is not None:
         # load the config if passed in
         app.config.from_object(config)
 
