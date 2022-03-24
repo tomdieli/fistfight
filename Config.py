@@ -1,10 +1,11 @@
-from os import environ
+from os import environ, urandom
 from distutils.debug import DEBUG
 
 
 class Config(object):
     DATABASE_URL = environ.get('DATABASE_URL')
     REDIS_URL = environ.get('REDIS_URL')
+    SECRET_KEY = urandom(12).hex()
     
 
 class ProductionConfig(Config):
