@@ -8,8 +8,6 @@ from flask_socketio import SocketIO
 
 from Config import Config
 
-DATABASE_URL = environ.get('DATABASE_URL')
-REDIS_URL = environ.get('REDIS_URL')
 
 socketio = SocketIO()
 
@@ -22,6 +20,8 @@ def create_app(config=None):
     if config is not None:
         # load the config if passed in
         app.config.from_object(config)
+    else:
+        app.config.from_object(Config)
 
     from . import db
     db.init_app(app)
@@ -39,7 +39,7 @@ def create_app(config=None):
     from .game import game as game_bp
     app.register_blueprint(game_bp)
 
-    socketio.init_app(app, message_queue=REDIS_URL)
+    socketio.init_app(app, message_queue=config['REDIS_URL'])
 
     # print(list(app.url_map.iter_rules()))
 

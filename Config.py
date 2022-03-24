@@ -1,9 +1,10 @@
+from os import environ
 from distutils.debug import DEBUG
 
 
 class Config(object):
-    DEBUG = False
-    TESTING = False
+    DATABASE_URL = environ.get('DATABASE_URL')
+    REDIS_URL = environ.get('REDIS_URL')
     
 
 class ProductionConfig(Config):

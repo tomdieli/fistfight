@@ -7,7 +7,6 @@ from flask.cli import with_appcontext
 
 def get_db():
     if 'db' not in g:
-        print(f"DB: {current_app.config['DATABASE_URL']}")
         g.db = psycopg2.connect(current_app.config['DATABASE_URL'])
         g.db.set_session(autocommit=True)
     return g.db
