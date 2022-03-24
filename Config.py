@@ -4,9 +4,6 @@ from distutils.debug import DEBUG
 class Config(object):
     DEBUG = False
     TESTING = False
-    SECRET_KEY = 'supersecret'
-    DATABASE_URL = 'postgresql://postgres:mysecretpassword@localhost/arena'
-    SESSION_COOKIE_SECURE = True
     
 
 class ProductionConfig(Config):
@@ -15,6 +12,9 @@ class ProductionConfig(Config):
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    SECRET_KEY = 'supersecret'
+    DATABASE_URL = 'postgresql://postgres:mysecretpassword@localhost/arena'
+    SESSION_COOKIE_SECURE = True
 
 
 class TestingConfig(Config):
