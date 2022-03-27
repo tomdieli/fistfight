@@ -17,3 +17,5 @@ build/
 
 issues.txt
 node_modules
+
+.my_stuff/
