@@ -3,6 +3,7 @@ from os import environ
 
 from flask import Flask, url_for, render_template
 from flask_socketio import SocketIO
+from flask_talisman import Talisman
 
 from Config import Config
 
@@ -14,6 +15,8 @@ logging.basicConfig(level=logging.INFO)
 
 def create_app(config=None):
     app = Flask(__name__, instance_relative_config=False)
+
+    Talisman(app)
 
     if config is not None:
         # load the config if passed in
