@@ -1,6 +1,4 @@
-# from crypt import methods
 import logging
-# import redis
 from os import environ
 
 from flask import Flask, url_for, render_template
@@ -40,7 +38,5 @@ def create_app(config=None):
     app.register_blueprint(game_bp)
 
     socketio.init_app(app, message_queue=app.config['REDIS_URL'])
-
-    # print(list(app.url_map.iter_rules()))
 
     return app

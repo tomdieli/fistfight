@@ -1,15 +1,8 @@
-// // Support TLS-specific URLs, when appropriate.
-// if (window.location.protocol == "https:") {
-//   var ws_scheme = "wss://";
-// } else {
-//   var ws_scheme = "ws://"
-// };
-
 var figures = figures;
 var game = JSON.parse(game);
 var user = user
 
-socket = io.connect('http://' + document.domain + ':' + location.port + '/arena');
+socket = io.connect(document.domain + ':' + location.port + '/arena');
 
 document.querySelector("#join-form").addEventListener("submit", function(event) {
   event.preventDefault();

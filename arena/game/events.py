@@ -25,7 +25,6 @@ def joined(user, game):
 
 @socketio.on('starting', namespace='/arena')
 def starting(game_id):
-    # Sent by clients when they enter a room.
     join_room('game%s'%game_id)
 
 
