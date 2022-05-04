@@ -19,7 +19,10 @@ def create_app(config=None):
     Talisman(
         app,
         content_security_policy={
-            'default-src': "'self'",
+            'default-src': [
+                '\'self\'',
+                'fistfight.herokuapp.com'
+            ],
             'img-src': '*',
             'script-src': [
                 "'self'",
