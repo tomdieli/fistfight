@@ -19,14 +19,14 @@ def create_app(config=None):
     Talisman(
         app,
         content_security_policy={
-            'default-src': 'self',
+            'default-src': "'self'",
             'img-src': '*',
             'script-src': [
-                'self',
+                "'self'",
                 'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js',
             ],
             'style-src': [
-                'self',
+                "'self'",
                 # 'another.cdn.com',
             ],
         },
