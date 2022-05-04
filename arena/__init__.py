@@ -22,7 +22,7 @@ def create_app(config=None):
             'default-src': "'self'",
             'img-src': '*',
             'script-src': [
-                "'self'",
+                '*.herokuapp.com',
                 'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js',
             ],
             'style-src': [
