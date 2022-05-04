@@ -16,7 +16,21 @@ logging.basicConfig(level=logging.INFO)
 def create_app(config=None):
     app = Flask(__name__, instance_relative_config=False)
 
-    Talisman(app)
+    Talisman(
+        app,
+        content_security_policy={
+            'default-src': 'self',
+            'img-src': '*',
+            'script-src': [
+                'self',
+                'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js',
+            ],
+            'style-src': [
+                'self',
+                # 'another.cdn.com',
+            ],
+        },
+    )
 
     if config is not None:
         # load the config if passed in
