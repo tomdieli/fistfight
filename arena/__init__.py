@@ -25,15 +25,16 @@ def create_app(config=None):
             ],
             'img-src': '*',
             'script-src': [
-                "'self'",
+                '\'self\'',
                 'fistfight.herokuapp.com',
                 'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js',
             ],
             'style-src': [
-                "'self'",
+                '\'self\'',
                 # 'another.cdn.com',
             ],
         },
+        content_security_policy_nonce_in=['script-src', 'style-src']
     )
 
     if config is not None:
