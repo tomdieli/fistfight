@@ -29,7 +29,7 @@
       <div id="gamesList">
   </div>  
 </div>
-<script type="text/javascript" nonce="{{ csp_nonce() }}>
+<script type="text/javascript" nonce="{{ csp_nonce() }}">
    var games = '{{ games|tojson }}'
    var thisUser = '{{ thisUser|tojson|safe }}'
    var users = '{{ users|tojson|safe }}'
