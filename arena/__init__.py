@@ -21,17 +21,17 @@ def create_app(config=None):
         content_security_policy={
             'default-src': [
                 '\'self\'',
-                'fistfight.herokuapp.com'
+                '*.herokuapp.com'
             ],
             'img-src': '*',
             'script-src': [
                 '\'self\'',
-                'fistfight.herokuapp.com',
+                '*.herokuapp.com',
                 'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js',
             ],
             'style-src': [
                 '\'self\'',
-                # 'another.cdn.com',
+                '*.herokuapp.com'
             ],
         },
         content_security_policy_nonce_in=['script-src', 'style-src']
