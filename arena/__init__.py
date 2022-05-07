@@ -21,6 +21,7 @@ def create_app(config=None):
             '\'self\'',
             '\'unsafe-inline\'',
             'cdnjs.cloudflare.com',
+            'compute-1.amazonaws.com',
         ]
     }
     Talisman(app, content_security_policy=csp)
