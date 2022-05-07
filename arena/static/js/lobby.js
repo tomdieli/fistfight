@@ -2,7 +2,12 @@ var thisUser = JSON.parse(thisUser);
 var games = JSON.parse(games);
 var users = JSON.parse(users);
 
-socket = io.connect(document.domain + ':' + location.port + '/lobby');
+var url = document.domain + ':' + location.port + '/lobby'
+
+socket = io.connect(
+  url,
+  cors_allowed_origins=url 
+);
 
 document.querySelector("#new_game").addEventListener("click", function(event) {
   event.preventDefault();
