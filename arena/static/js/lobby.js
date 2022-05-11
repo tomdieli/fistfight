@@ -5,8 +5,8 @@ var users = JSON.parse(users);
 var url = new URL('https://' + document.domain + '/arena');
 
 socket = io.connect(
-  url,
-  cors_allowed_origins=url 
+  url //,
+  //cors_allowed_origins=url 
 );
 
 document.querySelector("#new_game").addEventListener("click", function(event) {
