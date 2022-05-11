@@ -9,7 +9,7 @@ window.onload = function() {
   getNextPlayer();
 };
 
-socket = io.connect(document.domain + ':' + location.port + '/arena');
+socket = io.connect(document.domain + '/arena');
 
 
 socket.on('connect', function() {
