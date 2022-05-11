@@ -9,7 +9,9 @@ window.onload = function() {
   getNextPlayer();
 };
 
-socket = io.connect(document.domain);
+var url = new URL('https://' + document.domain + '/arena');
+
+socket = io.connect(url);
 
 
 socket.on('connect', function() {
