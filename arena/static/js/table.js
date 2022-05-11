@@ -2,7 +2,7 @@ var figures = figures;
 var game = JSON.parse(game);
 var user = user
 
-var url = new URL('https://' + document.domain + '/arena');
+var url = new URL('wss://' + document.domain + '/arena');
 
 
 

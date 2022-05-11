@@ -2,7 +2,7 @@ var thisUser = JSON.parse(thisUser);
 var games = JSON.parse(games);
 var users = JSON.parse(users);
 
-var url = new URL('https://' + document.domain + '/lobby');
+var url = new URL('wss://' + document.domain + '/lobby');
 
 socket = io.connect(
   url,
