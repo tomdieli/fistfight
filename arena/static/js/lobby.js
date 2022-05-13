@@ -15,6 +15,7 @@ document.querySelector("#new_game").addEventListener("click", function(event) {
 });
 
 socket.on('connect', function() {
+  console.log("emitting joined");
   socket.emit('joined', thisUser.username);
 });
 
@@ -61,7 +62,7 @@ function refreshGames(updated_games) {
       }
       gameNode.append(deleteButton);
     }
-    joinNode = getJoinButton(thisUser, game)
+    joinNode = getJoinButton(thisUser, game);
     // const joinNode = document.createElement('form')
     // joinNode.setAttribute('action', '/' + game.id + '/join/' + thisUser.id)
     // joinNode.setAttribute('method', 'post')
@@ -70,7 +71,7 @@ function refreshGames(updated_games) {
     // joinButton.setAttribute('type', 'submit')
     // joinNode.appendChild(joinButton)
     gameNode.append(joinNode);
-    gamesList.appendChild(gameNode)
+    gamesList.appendChild(gameNode);
   }
 }
 
