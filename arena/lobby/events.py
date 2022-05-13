@@ -7,7 +7,7 @@ from ..database import DatabaseServices
 @socketio.on('joined', namespace='/lobby')
 def joined(user):
     # Sent by clients when they enter a room.
-    print("join event received.")
+    # socketio.log("join event received.")
     join_room('lobby')
     with DatabaseServices() as dbs:
         users = dbs.get_users()

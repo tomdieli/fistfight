@@ -1,4 +1,4 @@
-import logging
+# import logging
 from os import environ
 
 from flask import Flask, url_for, render_template
@@ -10,7 +10,7 @@ from Config import Config
 
 socketio = SocketIO()
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
 
 
 def create_app(config=None):
@@ -68,6 +68,7 @@ def create_app(config=None):
     from .game import game as game_bp
     app.register_blueprint(game_bp)
 
+    socketio.logger = True
     socketio.init_app(app, message_queue=app.config['REDIS_URL'])
 
     return app
