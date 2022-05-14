@@ -2,11 +2,11 @@ var thisUser = JSON.parse(thisUser);
 var games = JSON.parse(games);
 var users = JSON.parse(users);
 
-var url = new URL('wss://' + document.domain + '/lobby');
+//url = new URL('https://' + document.domain + '/lobby');
 
 socket = io.connect(
-  url,
-  cors_allowed_origins=url 
+  'https://' + document.domain + '/lobby',
+  //cors_allowed_origins=url 
 );
 
 document.querySelector("#new_game").addEventListener("click", function(event) {
