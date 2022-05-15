@@ -9,10 +9,7 @@ window.onload = function() {
   getNextPlayer();
 };
 
-var url = new URL('wss://' + document.domain + '/arena');
-
-socket = io.connect(url);
-
+socket = io.connect('https://' + document.domain + '/arena');
 
 socket.on('connect', function() {
   socket.emit('starting', game_id);

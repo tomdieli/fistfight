@@ -2,11 +2,8 @@ var figures = figures;
 var game = JSON.parse(game);
 var user = user
 
-var url = new URL('wss://' + document.domain + '/arena');
 
-
-
-socket = io.connect(url);
+socket = io.connect('https://' + document.domain + '/arena');
 
 document.querySelector("#join-form").addEventListener("submit", function(event) {
   event.preventDefault();

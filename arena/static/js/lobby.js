@@ -2,11 +2,9 @@ var thisUser = JSON.parse(thisUser);
 var games = JSON.parse(games);
 var users = JSON.parse(users);
 
-//url = new URL('https://' + document.domain + '/lobby');
 
 socket = io.connect(
   'https://' + document.domain + '/lobby',
-  //cors_allowed_origins=url 
 );
 
 document.querySelector("#new_game").addEventListener("click", function(event) {
@@ -39,7 +37,7 @@ socket.on('delete', function(message) {
 
 function refreshUsers(updatedUsers) {
   theDiv = document.getElementById("otherUsers")
-  theDiv.innerHTML = "Users:<p>"
+  theDiv.innerHTML = "Users:"
   for(var user of updatedUsers){
     var newNode = document.createElement('p');   
     newNode.innerHTML = user.username;
@@ -63,13 +61,6 @@ function refreshGames(updated_games) {
       gameNode.append(deleteButton);
     }
     joinNode = getJoinButton(thisUser, game);
-    // const joinNode = document.createElement('form')
-    // joinNode.setAttribute('action', '/' + game.id + '/join/' + thisUser.id)
-    // joinNode.setAttribute('method', 'post')
-    // joinNode.setAttribute('id', 'join' + game.id)
-    // const joinButton = document.createElement('input')
-    // joinButton.setAttribute('type', 'submit')
-    // joinNode.appendChild(joinButton)
     gameNode.append(joinNode);
     gamesList.appendChild(gameNode);
   }
