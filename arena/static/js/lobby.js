@@ -13,7 +13,6 @@ document.querySelector("#new_game").addEventListener("click", function(event) {
 });
 
 socket.on('connect', function() {
-  console.log("emitting joined");
   socket.emit('joined', thisUser.username);
 });
 

@@ -10,8 +10,6 @@ from Config import Config
 
 socketio = SocketIO()
 
-# logging.basicConfig(level=logging.INFO)
-
 
 def create_app(config=None):
     app = Flask(__name__, instance_relative_config=False)
@@ -23,28 +21,8 @@ def create_app(config=None):
             'cdnjs.cloudflare.com',
         ]
     }
-    Talisman(app, content_security_policy=csp)
 
-    # Talisman(
-    #     app,
-    #     content_security_policy={
-    #         'default-src': [
-    #             '\'self\'',
-    #             '*.herokuapp.com'
-    #         ],
-    #         'img-src': '*',
-    #         'script-src': [
-    #             '\'self\'',
-    #             '*.herokuapp.com',
-    #             'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js',
-    #         ],
-    #         'style-src': [
-    #             '\'self\'',
-    #             '*.herokuapp.com'
-    #         ],
-    #     },
-    #     content_security_policy_nonce_in=['script-src', 'style-src']
-    # )
+    Talisman(app, content_security_policy=csp)
 
     if config is not None:
         # load the config if passed in
