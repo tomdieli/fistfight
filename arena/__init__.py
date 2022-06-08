@@ -9,8 +9,6 @@ from Config import Config
 
 socketio = SocketIO()
 
-logging.basicConfig(level=logging.INFO)
-
 
 def create_app(config=None):
     app = Flask(__name__, instance_relative_config=False)
@@ -37,6 +35,7 @@ def create_app(config=None):
     from .game import game as game_bp
     app.register_blueprint(game_bp)
 
+    socketio.logger = True
     socketio.init_app(app, message_queue=app.config['REDIS_URL'])
 
     return app

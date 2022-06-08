@@ -33,7 +33,7 @@ socket.on('delete', function(message) {
 
 function refreshUsers(updatedUsers) {
   theDiv = document.getElementById("otherUsers")
-  theDiv.innerHTML = "Users:<p>"
+  theDiv.innerHTML = "Users:"
   for(var user of updatedUsers){
     var newNode = document.createElement('p');   
     newNode.innerHTML = user.username;
@@ -56,16 +56,9 @@ function refreshGames(updated_games) {
       }
       gameNode.append(deleteButton);
     }
-    joinNode = getJoinButton(thisUser, game)
-    // const joinNode = document.createElement('form')
-    // joinNode.setAttribute('action', '/' + game.id + '/join/' + thisUser.id)
-    // joinNode.setAttribute('method', 'post')
-    // joinNode.setAttribute('id', 'join' + game.id)
-    // const joinButton = document.createElement('input')
-    // joinButton.setAttribute('type', 'submit')
-    // joinNode.appendChild(joinButton)
+    joinNode = getJoinButton(thisUser, game);
     gameNode.append(joinNode);
-    gamesList.appendChild(gameNode)
+    gamesList.appendChild(gameNode);
   }
 }
 
