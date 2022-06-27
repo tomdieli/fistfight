@@ -2,35 +2,40 @@
 {% block title %}Table{% endblock %}
 {% block header %}Table{% endblock %}
 {% block content %}
-<body>
-  <div>
-    <h3> Choose Your Figure:</h3>
-    <form id="join-form" class="form-inline">
-      <select name="figure" id="figure" width="300px" aria-placeholder="Select someone to fight">
-        {% for x in figures %}
-          <option value="{{ x.figure_name }}"{% if loop.first %} SELECTED{% endif %}>{{ x.figure_name }}</option>
-        {% endfor %}
-      </select>
-      <button id="ready-button" type="submit">Ready</button>
-    </form>
-    <input type="button" id="start-game" value="Start" disabled>start game</button>
-  </div>
-  <div>
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-sm-4 col-lg-4">
+      <h3> Choose Your Figure:</h3>
+      <form id="join-form" class="form">
+        <select class="form-select" name="figure" id="figure">
+          {% for x in figures %}
+            <option value="{{ x.figure_name }}"{% if loop.first %} SELECTED{% endif %}>{{ x.figure_name }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn btn-primary" id="ready-button" type="submit">Ready</button>
+      </form>
+      <input class="btn btn-secondary" type="button" id="start-game" value="Start" disabled>start game</button>
+    </div>
+  <div class="col-sm-6 col-lg-6">
     <h2>Table</h2>
-    <textarea name="status" id="status" cols="40" rows="20"></textarea>
+    <textarea class=form-element style="min-width: 100%" name="status" id="status"></textarea>
   </div>
-  <div id="otherPlayers">
+  <div class="col-sm-2 col-lg-2">
     <h3>The Opponents</h3>
     <div id="playerList">
-    </div>
   </div>
-  <script type="text/javascript">
-    var user = '{{ user }}';
-    var game = '{{ game|tojson }}';
-    var game_owner = '{{ game_owner }}';
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="/static/js/table.js" defer></script>
-</body>
+</div>
 {% endblock content%}
+{% block script %}
+{{ super() }}
+<script type="text/javascript">
+  var user = '{{ user }}';
+  var game = '{{ game|tojson }}';
+  var game_owner = '{{ game_owner }}';
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+<script type="text/javascript" src="/static/js/table.js" defer></script>
+{% endblock script %}
+
+
 

@@ -2,12 +2,22 @@
 {% block title %}Log In{% endblock %}
 {% block header %}Log In{% endblock %}
 {% block content %}
-<h3>Register and Log In to Play</h3>
-  <form method="post">
-    <label for="username">Username</label>
-    <input name="username" name="username" id="username">
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password">
-    <input type="submit" name="login" value="Log In">
-  </form>
+{{ super() }}
+<div class="container-lg">
+  <div class="text-center">
+    <h3>Register and Log In to Play</h3>
+  </div>
+
+  <div class="row-justify-content-center">
+    <div class="row-lg-6">
+      <form method="post">
+        <label for="username" class="form-label">Username:</label>
+        <input type="input" class="form-control" id="username" name="username">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password">
+        <button type="submit" class="btn btn-primary" name="login">Log In</button>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}

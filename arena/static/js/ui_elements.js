@@ -1,5 +1,6 @@
 function getDeleteGame(){
   deleteButton = document.createElement('button');
+  deleteButton.class = "btn btn-primary"
   deleteButton.innerHTML = 'Delete';
   return deleteButton
 }

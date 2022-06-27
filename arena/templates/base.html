@@ -1,41 +1,44 @@
 <!DOCTYPE html>
 <head>
   <title>{% block title %}{% endblock %} - Fistfight!</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
 </head>
-<nav>
-  <h1>Fistfight! - {% block header %}{% endblock %}</h1>
-  <ul>
+<body background="{{ url_for('static', filename='index.jpeg') }}" style="background-color: slategray;background-blend-mode: screen"></body>
+{% block content %}
+<nav class="navbar navbar-dark bg-secondary">
+  <div class="container-xxl">
+    <h1>Fistfight! - {% block header %}{% endblock %}</h1>
     {% if g.user %}
-      <div>
-        <p style="text-align:right">
-          Logged in as <b>{{ g.user['username'] }}</b>
-          <br>
-          <a href="{{ url_for('auth.logout') }}">Log Out</a>
-          <br>
-          <a href="{{ url_for('lobby.index') }}">Lobby</a>
-        </p>
-      </div>
-      
+      <h4 class="nav-item align-center">Logged in as <b>{{ g.user['username'] }}</b></h4>
+      <ul class="navbar-nav nav-fill justify-content-end align-center"></ul>
+        <div>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('auth.logout') }}">Log Out</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('lobby.index') }}">Lobby</a>
+          </li>
+        </div>
+      </ul>
     {% else %}
-      <li><a href="{{ url_for('auth.register') }}">Register</a>
-      <li><a href="{{ url_for('auth.login') }}">Log In</a>
+      <a href="{{ url_for('auth.register') }}">Register</a>
+      <a href="{{ url_for('auth.login') }}">Log In</a>
     {% endif %}
-  </ul>
-</nav>
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class=flashes>
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-<section class="content">
-  <div class="flex-container">
-    {% block content %}
-    {% endblock content%}
   </div>
-</section>
+</nav>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul class=flashes>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+{% endblock content %}
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+{% endblock script %}
+</body>
+</html>

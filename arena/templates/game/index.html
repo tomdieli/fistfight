@@ -2,40 +2,59 @@
 {% block title %}Lobby{% endblock %}
 {% block header %}Lobby{% endblock %}
 {% block content %}
-  <div id="playerList">
-    <h2>{{ g.user['username'] }}'s figures</h2>
-    <a class="action" href="{{ url_for('figure.create') }}">New Figure</a>
-    <hr>
-    {% for figure in figures %}
-      {% if g.user['id'] == figure['user_id'] %}
-        <p><b>{{ figure['figure_name'] }}</b></p>
-        <p id="{{ figure['figure_name'] }}">
-          ST: {{ figure['strength'] }}, DX:{{ figure['dexterity'] }}
-        </p>
-        <a class="action" href="{{ url_for('figure.update', id=figure['id']) }}">Edit</a>
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-sm-2 col-lg-2">
+      <div id="playerList">
+        <h2>{{ g.user['username'] }}'s figures</h2>
+        <a class="action" href="{{ url_for('figure.create') }}">New Figure</a>
         <hr>
-      {% endif %}
-    {% endfor %}
+        <ul class="list-group">
+          {% for figure in figures %}
+          {% if g.user['id'] == figure['user_id'] %}
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div class="ms-2 me-auto">
+                <div class="fw-bold">{{ figure['figure_name'] }}</div>
+                ST: {{ figure['strength'] }}
+                DX: {{ figure['dexterity'] }}
+              </div>
+              <span class="badge bg-secondary rounded-pill"><a class="action" href="{{ url_for('figure.update', id=figure['id']) }}">Edit</a></span>
+            </li>
+          {% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="col-sm-5 col-lg-5">
+      <h2>The Lobby</h2>
+      <textarea class=form-element style="min-width: 100%; min-height: 100%" name="status" id="status"></textarea>
+    </div>
+    <div class="col-sm-2 col-lg-2">
+      <h2>Users:</h2>
+      <div id="otherUsers"></div>
+    </div>
+    <div class="col-sm-3 col-lg-3">
+      <div id="games">
+        <h2>Games</h3>
+          <button class="btn btn-primary" name="new_game" id="new_game">Create Game</button>
+          <ul id="gamesList"></ul>
+      </div>
+    </div>
   </div>
-  <div>
-    <h4>Welcome to the Lobby</h4>
-    <textarea name="status" id="status" cols="40" rows="20"></textarea>
-  </div>
-  <div id="otherUsers">
-  </div>
-  <div id="games">
-    <h3>Games</h3>
-      <button name="new_game" id="new_game">Create Game</button>
-      <div id="gamesList">
-  </div>  
 </div>
+{% endblock content %}
+
+
+{% block script %}
+{{ super() }}
 <script type="text/javascript">
-   var games = '{{ games|tojson }}'
-   var thisUser = '{{ thisUser|tojson|safe }}'
-   var users = '{{ users|tojson|safe }}'
+  var games = '{{ games|tojson }}'
+  var thisUser = '{{ thisUser|tojson|safe }}'
+  var users = '{{ users|tojson|safe }}'
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
 <script type="text/javascript" src="/static/js/ui_elements.js"></script>
-<script type="text/javascript" src="/static/js/lobby.js"></script>
-</body>
-{% endblock content%}
+<script type="text/javascript" src="/static/js/lobby.js" defer></script>
+{% endblock script %}
+
+
