@@ -19,6 +19,7 @@ def create_app(config=None):
             '\'self\'',
             '\'unsafe-inline\'',
             'cdnjs.cloudflare.com',
+            'cdn.jsdelivr.net',
         ]
     }
 
