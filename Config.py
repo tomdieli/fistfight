@@ -8,7 +8,6 @@ class Config(object):
     DATABASE_URL = environ.get('DATABASE_URL')
     REDIS_URL = environ.get('REDIS_URL')
     SECRET_KEY = urandom(12).hex()
-    SESSION_COOKIE_SECURE = True
     
 
 class ProductionConfig(Config):
