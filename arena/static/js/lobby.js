@@ -33,7 +33,6 @@ socket.on('delete', function(message) {
 
 function refreshUsers(updatedUsers) {
   theDiv = document.getElementById("otherUsers")
-  theDiv.innerHTML = "Users:"
   for(var user of updatedUsers){
     var newNode = document.createElement('p');   
     newNode.innerHTML = user.username;
