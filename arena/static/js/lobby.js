@@ -33,7 +33,6 @@ socket.on('delete', function(message) {
 
 function refreshUsers(updatedUsers) {
   theDiv = document.getElementById("otherUsers")
-  theDiv.innerHTML = ""
   for(var user of updatedUsers){
     var newNode = document.createElement('p');   
     newNode.innerHTML = user.username;
@@ -44,7 +43,6 @@ function refreshUsers(updatedUsers) {
 function refreshGames(updated_games) {
   gamesList = document.getElementById("gamesList")
   gamesList.innerHTML = ""
-  
   for(var game of updated_games) {
     const gameNode = document.createElement('li')
     gameNode.className = "list-group-item d-flex justify-content-between align-items-start"
