@@ -65,8 +65,6 @@ function refreshGames(updated_games) {
       }
       spanNode.append(deleteButton);
     }
-    joinNode = getJoinButton(thisUser, game);
-    gameNode.append(joinNode);
     gamesList.appendChild(gameNode);
   }
 }
